@@ -1,29 +1,31 @@
-# Local configuration and credentials
-.env
-.env.*
-!.env.example
-
-# Dependencies and build output
-node_modules/
+# build output
 dist/
-build/
-cmake-build-*/
-CMakeFiles/
-CMakeCache.txt
-*.obj
-*.o
-*.exe
-*.pdb
 
-# Editor and operating system files
-.vs/
-.idea/
-.DS_Store
-Thumbs.db
-*.log
-
-# Astro and migration scratch
+# generated types
 .astro/
-.vercel/
-.migration-backup/
-vendor/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+.vercel
+
+package-lock.json
+bun.lockb
+yarn.lock
+
+# ide
+.idea
+*.iml

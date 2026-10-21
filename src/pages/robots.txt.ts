@@ -1,19 +1,16 @@
-import type { APIRoute } from 'astro'
+import type { APIRoute } from "astro";
 
-export const prerender = true
+const robotsTxt = `
+User-agent: *
+Disallow: /_astro/
 
-const site = import.meta.env.SITE
-const robotsTxt = [
-  'User-agent: *',
-  'Allow: /',
-  'Disallow: /api/',
-  '',
-  `Sitemap: ${new URL('/sitemap.xml', site).href}`
-].join('\n')
+Sitemap: ${new URL("sitemap-index.xml", import.meta.env.SITE).href}
+`.trim();
 
-export const GET: APIRoute = () =>
-  new Response(robotsTxt, {
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8'
-    }
-  })
+export const GET: APIRoute = () => {
+	return new Response(robotsTxt, {
+		headers: {
+			"Content-Type": "text/plain; charset=utf-8",
+		},
+	});
+};

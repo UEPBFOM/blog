@@ -38,7 +38,8 @@ const jsonLd = {
 		name: profileConfig.name,
 		url: Astro.site,
 	},
-	datePublished: formatDateToYYYYMMDD(entry.data.published),
+	datePublished: entry.data.publishedHasTime ? entry.data.published.toISOString() : formatDateToYYYYMMDD(entry.data.published),
+	...(entry.data.updated ? { dateModified: entry.data.updatedHasTime ? entry.data.updated.toISOString() : formatDateToYYYYMMDD(entry.data.updated) } : {}),
 	inLanguage: entry.data.lang
 		? entry.data.lang.replace("_", "-")
 		: siteConfig.lang.replace("_", "-"),
@@ -89,6 +90,8 @@ const jsonLd = {
                         class="mb-5"
                         published={entry.data.published}
                         updated={entry.data.updated}
+                        publishedHasTime={entry.data.publishedHasTime}
+                        updatedHasTime={entry.data.updatedHasTime}
                         tags={entry.data.tags}
                         category={entry.data.category}
                 ></PostMetadata>

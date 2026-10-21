@@ -1,0 +1,10 @@
+MF_xian Blog incorporates code from joyehuang/blog.
+Upstream: https://github.com/joyehuang/blog
+Revision: c5d41fdee4e0f00593bd1859dae0afc52e4239a0
+Code license: Apache License 2.0 (see LICENSE).
+Based on Astro and Astro Theme Pure; dependency licenses remain applicable.
+
+Modified on 2026-10-21 for MF_xian: site identity, home/about/contact/projects
+pages, sample content, local branding, and external service configuration.
+Upstream personal articles, photographs, slides, QR codes, and personal
+portfolio data are excluded from this adaptation.

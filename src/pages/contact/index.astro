@@ -1,0 +1,15 @@
+---
+import { identity } from '@/site.identity'
+
+import PageLayout from '@/layouts/CommonPage.astro'
+
+export const prerender = true
+---
+
+<PageLayout title='联系我' headings={[]}>
+  <h2>保持联系</h2><p>如果想交流文章内容或项目实践，可以通过下面的方式联系我。</p><ul>
+    <li>
+      <a href={identity.github} target='_blank' rel='noopener noreferrer'>GitHub · UEPBFOM ↗</a>
+    </li><li><a href={'mailto:' + identity.email}>{identity.email}</a></li>
+  </ul>
+</PageLayout>

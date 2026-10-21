@@ -1,0 +1,16 @@
+---
+import { identity } from '@/site.identity'
+
+import PageLayout from '@/layouts/CommonPage.astro'
+
+export const prerender = true
+---
+
+<PageLayout title='项目' headings={[]}>
+  <h2>MF_xian Blog</h2><p>
+    我的个人博客，使用 Astro、TypeScript 与 Pure
+    构建，包含文章、笔记、中英文页面、站内搜索和交互式终端。
+  </p><p>源码仓库目前为私有。其他项目会随着实践逐步补充。</p><p>
+    <a href={identity.github} target='_blank' rel='noopener noreferrer'>GitHub · UEPBFOM ↗</a>
+  </p>
+</PageLayout>

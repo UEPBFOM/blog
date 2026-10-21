@@ -1,0 +1,18 @@
+---
+import { identity } from '@/site.identity'
+
+import PageLayout from '@/layouts/CommonPage.astro'
+
+export const prerender = true
+---
+
+<PageLayout title='Projects' headings={[]}>
+  <h2>MF_xian Blog</h2><p>
+    My personal blog, built with Astro, TypeScript and Pure. It includes posts, notes, bilingual
+    routes, search, and an interactive terminal.
+  </p><p>
+    The source repository is currently private. More projects will be added as they take shape.
+  </p><p>
+    <a href={identity.github} target='_blank' rel='noopener noreferrer'>GitHub · UEPBFOM ↗</a>
+  </p>
+</PageLayout>

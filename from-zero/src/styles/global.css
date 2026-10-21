@@ -1,0 +1,28 @@
+/* 先用普通 CSS 理解样式；颜色在这里集中修改。 */
+:root {
+  color-scheme: light;
+  --background: #fafbfc;
+  --foreground: #252a30;
+  --muted: #626b75;
+  --accent: #3d7086;
+  --border: #e0e5e9;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  color: var(--foreground);
+  background: var(--background);
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+.site-shell { max-width: 840px; min-height: 100svh; margin-inline: auto; padding-inline: 28px; display: flex; flex-direction: column; }
+.site-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; padding-block: 28px; border-bottom: 1px solid var(--border); }
+.brand { font-size: 17px; font-weight: 650; }
+.brand span { color: var(--muted); font-weight: 400; }
+nav { display: flex; gap: 24px; font-size: 14px; }
+nav [aria-current='page'] { color: var(--accent); }
+main { flex: 1; }
+.site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.8; }
+.skip-link { position: absolute; top: -100px; padding: 12px; background: var(--background); }
+.skip-link:focus { top: 8px; }
+@media (max-width: 600px) { .site-shell { padding-inline: 20px; } }

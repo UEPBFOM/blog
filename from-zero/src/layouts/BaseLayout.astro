@@ -1,0 +1,40 @@
+---
+import { site } from '../site'
+import '../styles/global.css'
+
+interface Props {
+  title?: string
+}
+
+const { title = site.title } = Astro.props
+---
+
+<!doctype html>
+<html lang='zh-CN'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <meta name='description' content={site.description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class='skip-link' href='#main'>跳转到正文</a>
+    <div class='site-shell'>
+      <header class='site-header'>
+        <a class='brand' href='/'>{site.name}<span> / Blog</span></a>
+        <nav aria-label='主导航'>
+          <a href='/' aria-current='page'>首页</a>
+          <a href={site.github} target='_blank' rel='noopener noreferrer'>GitHub ↗</a>
+        </nav>
+      </header>
+      <!-- slot 是插槽：每个页面的内容会放到这里。 -->
+      <main id='main'>
+        <slot />
+      </main>
+      <footer class='site-footer'>
+        <span>© {new Date().getFullYear()} {site.name}</span>
+        <span>Built with Astro · 慢慢写，慢慢积累。</span>
+      </footer>
+    </div>
+  </body>
+</html>

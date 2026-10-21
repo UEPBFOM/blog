@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Profile from '../components/Profile.astro'
+---
+
+<BaseLayout>
+  <Profile />
+  <section class='posts' aria-labelledby='posts-title'>
+    <div class='section-heading'>
+      <h2 id='posts-title'>文章</h2>
+      <span>文字，从这里开始。</span>
+    </div>
+    <p class='empty-state'>还没有发布文章。第一篇，留给新的开始。</p>
+  </section>
+</BaseLayout>
+
+<style>
+  .posts { border-top: 1px solid var(--border); padding-top: 28px; }
+  .section-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; justify-content: space-between; }
+  h2 { margin: 0; font-size: 20px; }
+  .section-heading span { color: var(--muted); font-size: 13px; }
+  .empty-state { padding: 32px 0 48px; color: var(--muted); line-height: 1.8; }
+</style>

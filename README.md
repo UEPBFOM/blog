@@ -28,7 +28,7 @@ bun run build
 - `src/site.identity.ts`：显示名、简介、GitHub、邮箱。
 - `src/site.config.ts`：导航与主题配置，评论默认关闭。
 - `src/pages/about/index.astro` 及英文镜像：关于页。
-- `src/assets/avatar.png` 与 `public/favicon/`：新建的 MF 字母头像和图标。
+- `src/assets/avatar.jpg`：用户提供的头像原图；`public/favicon/`：MF 字母图标。
 - `.env.example`：发布前设置 `PUBLIC_SITE_URL` 为真实域名；默认是本地地址。
 - `src/content/blog/日期 - 标题/post.mdx`：中文文章；同目录 `post.en.mdx` 为英文版，设置 `language: en` 与对应中文路由的 `translationKey`。
 - `src/content/notes/`：短笔记。

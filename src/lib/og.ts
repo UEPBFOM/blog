@@ -5,8 +5,8 @@ import { siteUrl } from '@/site.identity'
 import { Resvg } from '@resvg/resvg-js'
 import satori from 'satori'
 
-const avatarBuffer = fs.readFileSync(path.resolve('./src/assets/avatar.png'))
-const avatarDataUrl = `data:image/png;base64,${avatarBuffer.toString('base64')}`
+const avatarBuffer = fs.readFileSync(path.resolve('./src/assets/avatar.jpg'))
+const avatarDataUrl = `data:image/jpeg;base64,${avatarBuffer.toString('base64')}`
 
 // Rendered PNGs are cached across builds: each one costs two Google Fonts
 // round trips plus a satori/resvg render (~0.5s), and Vercel restores

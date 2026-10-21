@@ -1,29 +1,7 @@
-# Local configuration and credentials
+node_modules/
+dist/
+.astro/
+.vercel/
 .env
 .env.*
 !.env.example
-
-# Dependencies and build output
-node_modules/
-dist/
-build/
-cmake-build-*/
-CMakeFiles/
-CMakeCache.txt
-*.obj
-*.o
-*.exe
-*.pdb
-
-# Editor and operating system files
-.vs/
-.idea/
-.DS_Store
-Thumbs.db
-*.log
-
-# Astro and migration scratch
-.astro/
-.vercel/
-.migration-backup/
-vendor/

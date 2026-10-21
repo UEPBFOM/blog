@@ -1,0 +1,141 @@
+---
+import { Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
+import { identity } from '@/site.identity'
+
+import { PostPreview } from 'astro-pure/components/pages'
+import { Button, Icon, Label } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import PostPreviewEn from '@/components/blog/PostPreviewEn.astro'
+import Terminal from '@/components/terminal/Terminal.astro'
+import avatar from '@/assets/avatar.png'
+
+import Section from './Section.astro'
+import SiteStats from './SiteStats.astro'
+
+interface Props {
+  lang?: 'zh' | 'en'
+}
+const { lang = 'zh' } = Astro.props
+const en = lang === 'en'
+const prefix = en ? '/en' : ''
+const posts = (await getCollection(en ? 'blogEn' : 'blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => +b.data.publishDate - +a.data.publishDate)
+  .slice(0, 5)
+const notes = (await getCollection(en ? 'notesEn' : 'notes'))
+  .filter((n) => !n.data.draft)
+  .sort((a, b) => +b.data.date - +a.data.date)
+  .slice(0, 4)
+---
+
+<PageLayout meta={{ title: en ? 'Home' : '首页' }} highlightColor='#659EB9'>
+  <main class='flex w-full flex-col items-center'>
+    <section class='animate mb-10 flex flex-col items-center gap-y-7' id='content-header'>
+      <Image
+        src={avatar}
+        alt={identity.name}
+        class='h-28 w-28 rounded-full border p-1'
+        loading='eager'
+      />
+      <div class='flex flex-col items-center gap-y-4'>
+        <h1 class='text-3xl font-bold'>{identity.name}</h1>
+        <p class='text-center text-muted-foreground'>
+          {en ? identity.descriptionEn : identity.description}
+        </p>
+        <Label
+          title='GitHub'
+          as='a'
+          href={identity.github}
+          target='_blank'
+          rel='noopener noreferrer'><Icon name='github' class='size-5' slot='icon' /></Label
+        >
+      </div>
+      <a
+        href={prefix + '/contact'}
+        class='flex items-center gap-3 rounded-full border px-4 py-2 text-sm shadow-sm hover:shadow-md'
+        ><span class='size-2 rounded-full bg-green-400'></span>{
+          en ? 'Connect with me' : '联系我'
+        }</a
+      >
+    </section>
+    <div id='content' class='animate flex w-full min-w-0 flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
+      <Terminal />
+      <Section title='About'>
+        <p class='text-muted-foreground'>
+          {
+            en
+              ? 'Hello, I’m MF_xian. This is my space for learning, building projects, and writing things down.'
+              : '你好，我是 MF_xian。这里记录我的学习过程、项目实践，以及那些值得留下来的想法。'
+          }
+        </p>
+        <Button
+          title={en ? 'More about me' : '更多关于我'}
+          href={prefix + '/about'}
+          class='w-fit self-end'
+          style='ahead'
+        />
+      </Section>
+      <Section title='Blog'>
+        <ul class='flex flex-col gap-2'>
+          {
+            posts.map((post) => (
+              <li>
+                {post.collection === 'blogEn' ? (
+                  <PostPreviewEn post={post} />
+                ) : (
+                  <PostPreview post={post} />
+                )}
+              </li>
+            ))
+          }
+        </ul>
+        <Button
+          title={en ? 'All posts' : '全部文章'}
+          href={prefix + '/blog'}
+          class='w-fit self-end'
+          style='ahead'
+        />
+      </Section>
+      <Section title='Notes'>
+        <ul class='flex flex-col gap-2'>
+          {
+            notes.map((note) => (
+              <li>
+                <a
+                  class='block rounded-2xl border px-5 py-4 transition-colors hover:bg-muted'
+                  href={prefix + '/notes/' + (en ? note.data.translationKey : note.id)}
+                >
+                  {note.data.title}
+                  <span class='float-right' aria-hidden='true'>
+                    →
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <Button
+          title={en ? 'All notes' : '全部笔记'}
+          href={prefix + '/notes'}
+          class='w-fit self-end'
+          style='ahead'
+        />
+      </Section>
+      <Section title='Projects'>
+        <a
+          class='rounded-2xl border p-5 transition-colors hover:bg-muted'
+          href={prefix + '/projects'}
+          ><h3 class='font-semibold'>MF_xian Blog</h3><p class='mt-2 text-muted-foreground'>
+            {
+              en
+                ? 'A personal blog built with Astro and Pure.'
+                : '基于 Astro 与 Pure 搭建的个人博客，持续记录与完善。'
+            }
+          </p></a
+        >
+      </Section>
+      <SiteStats lang={lang} />
+    </div>
+  </main>
+</PageLayout>

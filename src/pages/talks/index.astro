@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content'
+import { sortTalks } from '@/lib/talks'
+
+import { Button } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import TalksSeries from '@/components/talks/TalksSeries.astro'
+
+export const prerender = true
+const talks = sortTalks((await getCollection('talks')).filter((t) => !t.data.draft))
+---
+
+<PageLayout
+  meta={{ title: '分享 · Talks', description: '分享记录与交流。', ogImage: '/og/talks.png' }}
+  highlightColor='#659EB9'
+>
+  <Button title='Back' href='/' style='back' />
+  {
+    talks.length ? (
+      <TalksSeries talks={talks} />
+    ) : (
+      <main class='py-12'>
+        <>
+          <h1 class='text-3xl font-bold'>分享 · Talks</h1>
+          <p class='mt-6 text-muted-foreground'>
+            还没有公开分享记录，未来的分享与交流会整理在这里。
+          </p>
+        </>
+      </main>
+    )
+  }
+</PageLayout>

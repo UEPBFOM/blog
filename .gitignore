@@ -21,3 +21,9 @@ CMakeCache.txt
 .DS_Store
 Thumbs.db
 *.log
+
+# Astro and migration scratch
+.astro/
+.vercel/
+.migration-backup/
+vendor/

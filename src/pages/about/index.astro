@@ -1,0 +1,19 @@
+---
+import { identity } from '@/site.identity'
+
+import PageLayout from '@/layouts/CommonPage.astro'
+
+export const prerender = true
+---
+
+<PageLayout title='关于我' headings={[]}>
+  <h2>你好，我是 MF_xian</h2><p>
+    我用这个博客记录编程学习、项目实践与日常思考。把问题想明白，再把过程写下来。
+  </p><h2>这里会写些什么</h2><ul>
+    <li>编程与计算机基础的学习笔记</li><li>项目搭建过程与问题复盘</li><li>
+      值得收藏的资料与日常想法
+    </li>
+  </ul><p>
+    <a href={identity.github} target='_blank' rel='noopener noreferrer'>GitHub · UEPBFOM ↗</a>
+  </p>
+</PageLayout>

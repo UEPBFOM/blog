@@ -1,6 +1,6 @@
 # Cloudflare Pages
 
-当前使用 Fuwari 官方模板，保留 MIT LICENSE。原始说明见 README.md。
+当前使用 Fuwari 官方模板，保留 MIT LICENSE。模板原始说明见 https://github.com/saicaca/fuwari 。
 
 本地：`pnpm install --frozen-lockfile` 后执行 `pnpm dev`。
 

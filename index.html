@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="记录学习、编程与日常的个人博客。" />
+    <title>我的博客</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="./index.html">我的博客<span> / 学习与记录</span></a>
+      <a href="#posts">文章</a>
+    </header>
+
+    <main>
+      <section class="intro">
+        <p class="eyebrow">一点思考，一点进步</p>
+        <h1>把学到的东西，<br />慢慢写下来。</h1>
+        <p>这里记录编程学习、项目实践，以及生活中的小发现。</p>
+      </section>
+
+      <section id="posts" aria-labelledby="posts-heading">
+        <div class="section-heading">
+          <h2 id="posts-heading">最新文章</h2>
+          <span>从第一篇开始</span>
+        </div>
+        <article class="post-card">
+          <div class="post-meta"><span>学习笔记</span><span>示例文章</span></div>
+          <h3>你好，我的博客</h3>
+          <p>从一个简单的页面开始，逐步搭建属于自己的博客。</p>
+          <button id="toggle-article" type="button" aria-expanded="false" aria-controls="article-content">阅读全文 →</button>
+          <div id="article-content" class="article-content" hidden>
+            <p>这是博客的第一篇示例文章。HTML 负责页面结构，CSS 负责外观，JavaScript 负责交互。</p>
+            <p>目前文章直接写在页面中。接入后端后，可以通过接口获取文章，再显示到这里。</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer>我的博客 · 记录每一次成长</footer>
+  </body>
+</html>

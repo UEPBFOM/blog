@@ -1,0 +1,368 @@
+---
+import { profileConfig } from "../config";
+import ImageWrapper from "./misc/ImageWrapper.astro";
+---
+<!-- Skip the splash before it paints if this tab has already entered the blog -->
+<script is:inline>
+    try {
+        if (sessionStorage.getItem("splash-seen")) document.documentElement.classList.add("splash-seen");
+    } catch {}
+</script>
+
+<div id="splash" role="dialog" aria-label="进入博客">
+    <canvas id="splash-sky"></canvas>
+    <div id="splash-ring"></div>
+    <button type="button" id="splash-avatar" aria-label="点击头像进入博客">
+        <ImageWrapper src={profileConfig.avatar || ""} alt="" class="w-full h-full" />
+    </button>
+    <div id="splash-tip">点击头像</div>
+</div>
+
+<style is:global>
+    .splash-seen #splash { display: none; }
+    #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #03040a;
+        overflow: hidden;
+    }
+    #splash-sky {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 1.2s ease, filter 1.6s ease;
+    }
+    #splash-sky.ready { opacity: 1; }
+    #splash-avatar, #splash-ring {
+        position: absolute;
+        left: 50%;
+        top: 44%;
+        width: 7rem;
+        height: 7rem;
+        margin: -3.5rem 0 0 -3.5rem;
+        border-radius: 50%;
+    }
+    #splash-avatar {
+        padding: 0;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid rgba(200, 215, 255, 0.55);
+        background: #1b2340;
+        transition: transform 0.35s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.9s ease, box-shadow 0.5s, filter 0.9s;
+    }
+    #splash-avatar:hover, #splash-avatar:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 10px rgba(150, 170, 255, 0.12), 0 0 0 22px rgba(150, 170, 255, 0.06);
+    }
+    #splash-ring {
+        border: 1px solid rgba(200, 215, 255, 0.7);
+        opacity: 0;
+        pointer-events: none;
+    }
+    #splash-tip {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(44% + 5rem);
+        text-align: center;
+        color: rgba(220, 228, 255, 0.6);
+        font-size: 0.8125rem;
+        letter-spacing: 0.3em;
+        transition: opacity 0.5s;
+        pointer-events: none;
+    }
+</style>
+
+<script>
+// Procedural deep-space nebula behind the avatar. The heavy layers are drawn once;
+// each frame only moves them (rotation and mouse parallax) and redraws the twinkling stars.
+const SEED = 20261022;
+
+const splash = document.getElementById("splash");
+const seen = document.documentElement.classList.contains("splash-seen");
+if (splash && seen) splash.remove();
+else if (splash) startSplash(splash);
+
+function startSplash(splash: HTMLElement) {
+    const cv = document.getElementById("splash-sky") as HTMLCanvasElement;
+    const ctx = cv.getContext("2d")!;
+    const av = document.getElementById("splash-avatar")!;
+    const ring = document.getElementById("splash-ring")!;
+    const tip = document.getElementById("splash-tip")!;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const small = Math.min(innerWidth, innerHeight) < 700;
+    const dpr = Math.min(2, devicePixelRatio || 1);
+
+    let seed = SEED;
+    const rnd = () => {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+    };
+    const P = new Uint8Array(512);
+    const initNoise = () => {
+        const p = [...Array(256).keys()];
+        for (let i = 255; i > 0; i--) {
+            const j = Math.floor(rnd() * (i + 1));
+            [p[i], p[j]] = [p[j], p[i]];
+        }
+        for (let i = 0; i < 512; i++) P[i] = p[i & 255];
+    };
+    const sm = (t: number) => t * t * (3 - 2 * t);
+    const vn = (x: number, y: number) => {
+        const X = Math.floor(x), Y = Math.floor(y), fx = sm(x - X), fy = sm(y - Y);
+        const h = (i: number, j: number) => P[(P[(X + i) & 255] + Y + j) & 511] / 255;
+        return h(0, 0) * (1 - fx) * (1 - fy) + h(1, 0) * fx * (1 - fy) + h(0, 1) * (1 - fx) * fy + h(1, 1) * fx * fy;
+    };
+    const fbm = (x: number, y: number, o = 5) => {
+        let v = 0, a = 0.5, f = 1, n = 0;
+        for (let i = 0; i < o; i++) {
+            v += a * vn(x * f, y * f);
+            n += a;
+            f *= 2.07;
+            a *= 0.5;
+        }
+        return v / n;
+    };
+    const ss = (e0: number, e1: number, x: number) => {
+        const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0)));
+        return t * t * (3 - 2 * t);
+    };
+    const mix = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    type Star = { x: number; y: number; r: number; big: boolean; hue: number; sat: number; ph: number; sp: number; a: number };
+    let W = 0, H = 0, S = 0;
+    let far: HTMLCanvasElement, mid: HTMLCanvasElement, live: Star[] = [];
+    let mx = 0, my = 0, sx = 0, sy = 0, running = true, meteor: { x: number; y: number; l: number } | null = null;
+
+    const layer = (): [HTMLCanvasElement, CanvasRenderingContext2D] => {
+        const c = document.createElement("canvas");
+        c.width = S;
+        c.height = S;
+        return [c, c.getContext("2d")!];
+    };
+
+    function build() {
+        seed = SEED;
+        W = innerWidth;
+        H = innerHeight;
+        S = Math.ceil(Math.hypot(W, H)) + 80;
+        cv.width = W * dpr;
+        cv.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        initNoise();
+        const N = small ? 200 : 300, img = new ImageData(N, N), dens = new Float32Array(N * N);
+        rnd();
+        for (let j = 0; j < N; j++)
+            for (let i = 0; i < N; i++) {
+                const u = (i + 0.5) / N, v = (j + 0.5) / N;
+                const qx = fbm(u * 2.5, v * 2.5, 4), qy = fbm(u * 2.5 + 5.2, v * 2.5 + 1.3, 4);
+                const cloud = fbm(u * 4 + 2.2 * qx, v * 4 + 2.2 * qy, 5);
+                let d = ss(0.42, 0.8, cloud) * 0.85 + 0.04;
+                const core = ss(0.55, 0.85, fbm(u * 1.5 + 7, v * 1.5 + 2, 3)) * 0.6;
+                const lane = ss(0.5, 0.72, fbm(u * 5 + qx * 3 + 3, v * 5 + qy * 3 + 8, 5)) * 0.75;
+                d *= 1 - 0.82 * lane;
+                const pink = ss(0.6, 0.75, fbm(u * 5 + 31, v * 5 + 17, 4)) * 0.8;
+                const teal = ss(0.55, 0.75, fbm(u * 3 + 51, v * 3 + 5, 4)) * 0.6;
+                let r = mix(70, 255, core), g = mix(80, 205, core), b = mix(170, 150, core);
+                r = mix(r, 230, pink * 0.7); g = mix(g, 90, pink * 0.7); b = mix(b, 150, pink * 0.7);
+                r = mix(r, 60, teal); g = mix(g, 170, teal); b = mix(b, 200, teal);
+                const k = Math.pow(Math.max(0, d), 0.85) * 1.05, p = (j * N + i) * 4;
+                img.data[p] = 4 + r * k;
+                img.data[p + 1] = 5 + g * k;
+                img.data[p + 2] = 12 + b * k;
+                img.data[p + 3] = 255;
+                dens[j * N + i] = Math.max(0, d);
+            }
+        const lo = document.createElement("canvas");
+        lo.width = N;
+        lo.height = N;
+        lo.getContext("2d")!.putImageData(img, 0, 0);
+        const at = (x: number, y: number) => dens[Math.min(N - 1, Math.floor((y / S) * N)) * N + Math.min(N - 1, Math.floor((x / S) * N))];
+
+        let g: CanvasRenderingContext2D;
+        [far, g] = layer();
+        g.imageSmoothingQuality = "high";
+        g.filter = "blur(2px)";
+        g.drawImage(lo, -4, -4, S + 8, S + 8);
+        g.filter = "none";
+        g.globalCompositeOperation = "lighter";
+        const dust = small ? 45000 : 90000;
+        for (let n = 0; n < dust; n++) {
+            const x = rnd() * S, y = rnd() * S, d = at(x, y);
+            if (rnd() > 0.04 + d * 1.2) continue;
+            g.fillStyle = `rgba(${(200 + rnd() * 55) | 0},${(205 + rnd() * 40) | 0},255,${0.06 + rnd() * 0.22 * Math.min(1, d + 0.2)})`;
+            g.fillRect(x, y, 0.7, 0.7);
+        }
+        g.globalCompositeOperation = "source-over";
+
+        [mid, g] = layer();
+        const stars = small ? 7000 : 14000;
+        for (let n = 0; n < stars; n++) {
+            const x = rnd() * S, y = rnd() * S, d = at(x, y);
+            if (rnd() > 0.18 + d * 0.9) continue;
+            g.fillStyle = `hsla(${rnd() < 0.2 ? 35 : 220},${rnd() < 0.3 ? 55 : 20}%,90%,${0.35 + rnd() * 0.5})`;
+            g.beginPath();
+            g.arc(x, y, 0.45 + rnd() * 0.7, 0, 6.28);
+            g.fill();
+        }
+
+        live = [];
+        const liveCount = small ? 200 : 380;
+        while (live.length < liveCount) {
+            const x = rnd() * S, y = rnd() * S;
+            if (rnd() > 0.35 + at(x, y)) continue;
+            const big = rnd() < 0.08;
+            live.push({
+                x, y, big,
+                r: big ? 1.3 + rnd() * 1.1 : 0.6 + rnd() * 0.6,
+                hue: rnd() < 0.2 ? 35 : rnd() < 0.5 ? 210 : 235,
+                sat: rnd() < 0.4 ? 60 : 25,
+                ph: rnd() * 6.28,
+                sp: 0.6 + rnd() * 2.2,
+                a: 0.5 + rnd() * 0.5,
+            });
+        }
+    }
+
+    function draw(now: number) {
+        const t = reduced ? 0 : now / 1000;
+        sx += (mx - sx) * 0.05;
+        sy += (my - sy) * 0.05;
+        ctx.fillStyle = "#03040a";
+        ctx.fillRect(0, 0, W, H);
+        ctx.save();
+        ctx.translate(W / 2, H / 2);
+        ctx.rotate(t * 0.003);
+        ctx.drawImage(far, -S / 2 - sx * 6, -S / 2 - sy * 6, S, S);
+        ctx.drawImage(mid, -S / 2 - sx * 16, -S / 2 - sy * 16, S, S);
+        for (const s of live) {
+            const tw = 0.6 + 0.4 * Math.sin(t * s.sp + s.ph), x = s.x - S / 2 - sx * 30, y = s.y - S / 2 - sy * 30;
+            ctx.fillStyle = `hsla(${s.hue},${s.sat}%,90%,${s.a * tw})`;
+            ctx.beginPath();
+            ctx.arc(x, y, s.r, 0, 6.28);
+            ctx.fill();
+            if (s.big) {
+                ctx.fillStyle = `hsla(${s.hue},60%,80%,${0.1 * tw})`;
+                ctx.beginPath();
+                ctx.arc(x, y, s.r * 3.5, 0, 6.28);
+                ctx.fill();
+            }
+        }
+        ctx.restore();
+        if (!reduced) {
+            if (!meteor && Math.random() < 0.003) meteor = { x: Math.random() * W * 0.8 + W * 0.2, y: Math.random() * H * 0.35, l: 0 };
+            if (meteor) {
+                meteor.l += 0.022;
+                const L = meteor.l, x = meteor.x - L * 280, y = meteor.y + L * 130;
+                ctx.strokeStyle = `rgba(225,232,255,${Math.max(0, 0.85 - L)})`;
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + 70, y - 32);
+                ctx.stroke();
+                if (L > 1) meteor = null;
+            }
+        }
+    }
+
+    function loop(now: number) {
+        if (!running) return;
+        draw(now);
+        if (!reduced) requestAnimationFrame(loop);
+    }
+
+    // Let the black screen and avatar paint first, then build the sky and fade it in.
+    setTimeout(() => {
+        build();
+        cv.classList.add("ready");
+        requestAnimationFrame(loop);
+    }, 30);
+
+    let resizeTimer = 0;
+    addEventListener("resize", () => {
+        if (!running) return;
+        clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+            build();
+            if (reduced) draw(0);
+        }, 200);
+    });
+    if (!reduced) {
+        splash.addEventListener("mousemove", (e) => {
+            mx = e.clientX / W - 0.5;
+            my = e.clientY / H - 0.5;
+        });
+        splash.addEventListener("mouseleave", () => {
+            mx = 0;
+            my = 0;
+        });
+    }
+    // Keep the page underneath from scrolling while the splash is up.
+    const block = (e: Event) => e.preventDefault();
+    splash.addEventListener("wheel", block, { passive: false });
+    splash.addEventListener("touchmove", block, { passive: false });
+
+    const ease = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+    const page = () => Array.from(document.body.children).filter((el) => el !== splash && el.tagName !== "SCRIPT") as HTMLElement[];
+
+    function finish() {
+        running = false;
+        for (const el of page()) el.style.filter = "";
+        splash.remove();
+    }
+
+    let entering = false;
+    function enter() {
+        if (entering) return;
+        entering = true;
+        try {
+            sessionStorage.setItem("splash-seen", "1");
+        } catch {}
+        tip.style.opacity = "0";
+
+        if (reduced) {
+            splash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, easing: "ease" }).onfinish = finish;
+            return;
+        }
+
+        // Beat 1: the avatar is pressed in and a ripple leaves it.
+        av.style.transform = "scale(0.9)";
+        ring.animate([{ transform: "scale(1)", opacity: 0.8 }, { transform: "scale(2.4)", opacity: 0 }], {
+            duration: 900,
+            easing: "cubic-bezier(.2,.6,.3,1)",
+        });
+        setTimeout(() => {
+            av.style.transform = "scale(1.04)";
+        }, 350);
+
+        // Beat 2 and 3: the sky loses focus, then the blog opens from the avatar with a soft edge.
+        setTimeout(() => {
+            cv.style.filter = "blur(6px) brightness(.7)";
+            av.style.opacity = "0";
+            av.style.filter = "blur(4px)";
+            const r = av.getBoundingClientRect();
+            const x = r.left + r.width / 2, y = r.top + r.height / 2, R = Math.hypot(W, H), start = performance.now(), dur = 1700;
+            const els = page();
+            const step = (n: number) => {
+                const k = Math.min(1, (n - start) / dur), e = ease(k), rad = 40 + e * R, f = 60 + e * 140;
+                const m = `radial-gradient(circle at ${x}px ${y}px, transparent ${Math.max(0, rad - f)}px, #000 ${rad}px)`;
+                splash.style.webkitMaskImage = m;
+                splash.style.maskImage = m;
+                for (const el of els) el.style.filter = `blur(${(1 - e) * 10}px)`;
+                if (k < 1) requestAnimationFrame(step);
+                else finish();
+            };
+            requestAnimationFrame(step);
+        }, 650);
+    }
+
+    av.addEventListener("click", enter);
+    document.addEventListener("keydown", (e) => {
+        if (document.getElementById("splash") && (e.key === "Escape" || e.key === "Enter")) enter();
+    });
+}
+</script>

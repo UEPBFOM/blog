@@ -31,4 +31,4 @@ yarn.lock
 *.iml
 
 # private plaintext drafts (only encrypted output in public/private/ is committed)
-private/
+/private/

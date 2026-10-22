@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import { SITE_TIMEZONE } from "../constants/constants";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 import { formatPostDate } from "../utils/date-utils";
@@ -36,7 +37,7 @@ const className = Astro.props.class;
         >
             <Icon name="material-symbols:calendar-today-outline-rounded" class="text-xl"></Icon>
         </div>
-        <time datetime={publishedHasTime ? published.toISOString() : published.toISOString().slice(0, 10)} title={publishedHasTime ? "UTC+08:00 · Asia/Taipei" : undefined} class="text-50 text-sm font-medium">{formatPostDate(published, publishedHasTime)}</time>
+        <time datetime={publishedHasTime ? published.toISOString() : published.toISOString().slice(0, 10)} title={publishedHasTime ? `UTC+08:00 · ${SITE_TIMEZONE}` : undefined} class="text-50 text-sm font-medium">{formatPostDate(published, publishedHasTime)}</time>
     </div>
 
     <!-- update date -->
@@ -46,7 +47,7 @@ const className = Astro.props.class;
             >
                 <Icon name="material-symbols:edit-calendar-outline-rounded" class="text-xl"></Icon>
             </div>
-            <time datetime={updatedHasTime ? updated.toISOString() : updated.toISOString().slice(0, 10)} title={updatedHasTime ? "UTC+08:00 · Asia/Taipei" : undefined} class="text-50 text-sm font-medium">{formatPostDate(updated, updatedHasTime)}</time>
+            <time datetime={updatedHasTime ? updated.toISOString() : updated.toISOString().slice(0, 10)} title={updatedHasTime ? `UTC+08:00 · ${SITE_TIMEZONE}` : undefined} class="text-50 text-sm font-medium">{formatPostDate(updated, updatedHasTime)}</time>
         </div>
     )}
 

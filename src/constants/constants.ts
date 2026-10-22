@@ -1,5 +1,8 @@
 export const PAGE_SIZE = 8;
 
+// Time zone used to display post dates (UTC+08:00)
+export const SITE_TIMEZONE = "Asia/Shanghai";
+
 export const LIGHT_MODE = "light",
 	DARK_MODE = "dark",
 	AUTO_MODE = "auto";

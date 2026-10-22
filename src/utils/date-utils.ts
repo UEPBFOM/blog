@@ -1,11 +1,12 @@
+import { SITE_TIMEZONE } from "../constants/constants";
+
 export function formatDateToYYYYMMDD(date: Date): string {
 	return date.toISOString().substring(0, 10);
 }
 
-export function formatPostDate(date: Date, hasTime = false): string {
-	if (!hasTime) return formatDateToYYYYMMDD(date);
+export function getDateParts(date: Date): Record<string, string> {
 	const parts = new Intl.DateTimeFormat("en-GB", {
-		timeZone: "Asia/Taipei",
+		timeZone: SITE_TIMEZONE,
 		year: "numeric",
 		month: "2-digit",
 		day: "2-digit",
@@ -13,7 +14,11 @@ export function formatPostDate(date: Date, hasTime = false): string {
 		minute: "2-digit",
 		hourCycle: "h23",
 	}).formatToParts(date);
-	const value = (type: string) =>
-		parts.find((part) => part.type === type)?.value;
-	return `${value("year")}-${value("month")}-${value("day")} ${value("hour")}:${value("minute")}`;
+	return Object.fromEntries(parts.map((part) => [part.type, part.value]));
+}
+
+export function formatPostDate(date: Date, hasTime = false): string {
+	if (!hasTime) return formatDateToYYYYMMDD(date);
+	const p = getDateParts(date);
+	return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`;
 }

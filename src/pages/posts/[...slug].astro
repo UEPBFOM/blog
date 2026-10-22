@@ -6,7 +6,7 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
-import { getDir, getPostUrlBySlug } from "@utils/url-utils";
+import { getDir, getPostUrlBySlug, url } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import { licenseConfig } from "src/config";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
@@ -113,9 +113,19 @@ const jsonLd = {
             }
 
 
-            <Markdown class="mb-6 markdown-content onload-animation">
-                <Content />
-            </Markdown>
+            <div id="public-content">
+                <Markdown class="mb-6 markdown-content onload-animation">
+                    <Content />
+                </Markdown>
+            </div>
+
+            {entry.data.encrypted && <>
+                <p id="private-hint" class="mb-6 text-sm text-black/40 dark:text-white/40">
+                    这是公开的删减版。完整版已加密，点击右上角的锁，输入暗号即可阅读。
+                </p>
+                <div id="private-slot" data-src={url(`/private/${entry.data.encrypted}.json`)}
+                     class="hidden prose dark:prose-invert prose-base !max-w-none custom-md markdown-content mb-6"></div>
+            </>}
 
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
 

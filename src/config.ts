@@ -57,7 +57,6 @@ export const profileConfig: ProfileConfig = {
 	name: "MFxian",
 	bio: "记录编程学习、项目实践与日常思考。",
 	links: [
-
 		{
 			name: "GitHub",
 			icon: "fa6-brands:github",

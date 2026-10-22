@@ -38,8 +38,16 @@ const jsonLd = {
 		name: profileConfig.name,
 		url: Astro.site,
 	},
-	datePublished: entry.data.publishedHasTime ? entry.data.published.toISOString() : formatDateToYYYYMMDD(entry.data.published),
-	...(entry.data.updated ? { dateModified: entry.data.updatedHasTime ? entry.data.updated.toISOString() : formatDateToYYYYMMDD(entry.data.updated) } : {}),
+	datePublished: entry.data.publishedHasTime
+		? entry.data.published.toISOString()
+		: formatDateToYYYYMMDD(entry.data.published),
+	...(entry.data.updated
+		? {
+				dateModified: entry.data.updatedHasTime
+					? entry.data.updated.toISOString()
+					: formatDateToYYYYMMDD(entry.data.updated),
+			}
+		: {}),
 	inLanguage: entry.data.lang
 		? entry.data.lang.replace("_", "-")
 		: siteConfig.lang.replace("_", "-"),

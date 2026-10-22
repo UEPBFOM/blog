@@ -5,6 +5,7 @@ import { createCipheriv, pbkdf2Sync, randomBytes } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import MarkdownIt from "markdown-it";
+import getReadingTime from "reading-time";
 
 const ITERATIONS = 600000;
 
@@ -59,6 +60,9 @@ const html = new MarkdownIt({ html: false, linkify: true }).render(
 	await readFile(source, "utf8"),
 );
 
+// Same word count and reading time the public page shows, recomputed for the full text.
+const reading = getReadingTime(html.replace(/<[^>]+>/g, ""));
+
 const salt = randomBytes(16);
 const iv = randomBytes(12);
 const key = pbkdf2Sync(passphrase, salt, ITERATIONS, 32, "sha256");
@@ -76,6 +80,8 @@ await writeFile(
 	out,
 	JSON.stringify({
 		v: 1,
+		words: reading.words,
+		minutes: Math.max(1, Math.round(reading.minutes)),
 		iter: ITERATIONS,
 		salt: salt.toString("base64"),
 		iv: iv.toString("base64"),

@@ -25,7 +25,6 @@
                 <circle cx="232" cy="68" r="3.5" fill="var(--card-bg)"/>
             </g>
         </svg>
-        <span class="text-sm text-black/60 dark:text-white/60">还有一些没说完的话</span>
         <span class="box-hint text-xs text-black/40 dark:text-white/40">把钥匙对准锁，输入暗号</span>
     </button>
 
@@ -50,14 +49,14 @@
         flex-direction: column;
         align-items: center;
         gap: 4px;
-        padding: 1rem 2rem;
+        padding: 0.5rem 1.5rem;
         cursor: pointer;
         background: none;
         border: none;
         border-radius: 12px;
         color: var(--deep-text);
     }
-    .sealed-box svg { width: 240px; height: auto; overflow: visible; }
+    .sealed-box svg { width: 150px; height: auto; overflow: visible; }
     .sealed-box .lock { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 0.3s; }
     .sealed-box .shackle { transform-box: fill-box; transform-origin: 0% 100%; transition: transform 0.3s; }
     .sealed-box .key { transform-box: fill-box; transform-origin: 100% 50%; transition: transform 0.4s cubic-bezier(0.3, 1.4, 0.5, 1); }
@@ -80,7 +79,7 @@
 const PASS_KEY = "private-pass";
 const decode = (value: string) => Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
 
-async function decryptFile(pass: string, src: string): Promise<string> {
+async function decryptFile(pass: string, src: string) {
     const res = await fetch(src);
     if (!res.ok) throw new Error("missing");
     const file = await res.json();
@@ -93,7 +92,7 @@ async function decryptFile(pass: string, src: string): Promise<string> {
         ["decrypt"],
     );
     const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: decode(file.iv) }, key, decode(file.data));
-    return new TextDecoder().decode(plain);
+    return { html: new TextDecoder().decode(plain), words: file.words, minutes: file.minutes };
 }
 
 type UnlockResult = "ok" | "wrong" | "missing" | "no-slot";
@@ -101,13 +100,15 @@ type UnlockResult = "ok" | "wrong" | "missing" | "no-slot";
 async function unlockCurrentPage(pass: string): Promise<UnlockResult> {
     const slot = document.getElementById("private-slot");
     if (!slot) return "no-slot";
-    let html: string;
+    let full: Awaited<ReturnType<typeof decryptFile>>;
     try {
-        html = await decryptFile(pass, slot.dataset.src ?? "");
+        full = await decryptFile(pass, slot.dataset.src ?? "");
     } catch (e) {
         return (e as Error).message === "missing" ? "missing" : "wrong";
     }
-    slot.innerHTML = html;
+    slot.innerHTML = full.html;
+    if (full.words) document.getElementById("post-words")!.textContent = String(full.words);
+    if (full.minutes) document.getElementById("post-minutes")!.textContent = String(full.minutes);
     slot.classList.remove("hidden");
     document.getElementById("public-content")?.classList.add("hidden");
     document.getElementById("sealed-box-wrap")?.classList.add("hidden");

@@ -44,10 +44,6 @@ let links: NavBarLink[] = navBarConfig.links.map(
             })}
         </div>
         <div class="flex">
-            <button aria-label="Unlock private content" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="unlock-switch">
-                <Icon name="material-symbols:lock-outline" class="text-[1.25rem]" id="unlock-icon-locked"></Icon>
-                <Icon name="material-symbols:lock-open-outline" class="text-[1.25rem] hidden" id="unlock-icon-open"></Icon>
-            </button>
             <!--<SearchPanel client:load>-->
             <Search client:only="svelte"></Search>
             {!siteConfig.themeColor.fixed && (
@@ -63,19 +59,6 @@ let links: NavBarLink[] = navBarConfig.links.map(
         <NavMenuPanel links={links}></NavMenuPanel>
         <DisplaySettings client:only="svelte"></DisplaySettings>
     </div>
-</div>
-
-<div id="unlock-dialog" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 px-4">
-    <form id="unlock-form" class="card-base w-full max-w-sm p-6 flex flex-col gap-4">
-        <div class="font-bold text-lg text-black/90 dark:text-white/90">输入暗号</div>
-        <input id="unlock-input" type="password" autocomplete="off" aria-label="暗号"
-               class="w-full h-11 rounded-lg px-3 bg-black/5 dark:bg-white/10 outline-none text-black/80 dark:text-white/80" />
-        <div id="unlock-message" class="text-sm text-black/50 dark:text-white/50 min-h-5"></div>
-        <div class="flex justify-end gap-2">
-            <button type="button" id="unlock-cancel" class="btn-plain rounded-lg h-10 px-4 active:scale-95">取消</button>
-            <button type="submit" class="btn-regular rounded-lg h-10 px-4 active:scale-95">解锁</button>
-        </div>
-    </form>
 </div>
 
 <script>
@@ -119,119 +102,6 @@ function loadButtonScript() {
 }
 
 loadButtonScript();
-
-const PASS_KEY = "private-pass";
-const decode = (value: string) => Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
-
-async function decryptFile(pass: string, src: string): Promise<string> {
-    const res = await fetch(src);
-    if (!res.ok) throw new Error("missing");
-    const file = await res.json();
-    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]);
-    const key = await crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: decode(file.salt), iterations: file.iter, hash: "SHA-256" },
-        base,
-        { name: "AES-GCM", length: 256 },
-        false,
-        ["decrypt"],
-    );
-    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: decode(file.iv) }, key, decode(file.data));
-    return new TextDecoder().decode(plain);
-}
-
-type UnlockResult = "ok" | "wrong" | "missing" | "no-slot";
-
-async function unlockCurrentPage(pass: string): Promise<UnlockResult> {
-    const slot = document.getElementById("private-slot");
-    if (!slot) return "no-slot";
-    let html: string;
-    try {
-        html = await decryptFile(pass, slot.dataset.src ?? "");
-    } catch (e) {
-        return (e as Error).message === "missing" ? "missing" : "wrong";
-    }
-    slot.innerHTML = html;
-    slot.classList.remove("hidden");
-    document.getElementById("public-content")?.classList.add("hidden");
-    document.getElementById("private-hint")?.classList.add("hidden");
-    return "ok";
-}
-
-function readPass(): string | null {
-    try {
-        return sessionStorage.getItem(PASS_KEY);
-    } catch {
-        return null;
-    }
-}
-
-function setUnlockedIcon(unlocked: boolean) {
-    document.getElementById("unlock-icon-locked")?.classList.toggle("hidden", unlocked);
-    document.getElementById("unlock-icon-open")?.classList.toggle("hidden", !unlocked);
-}
-
-async function applySavedPass() {
-    const pass = readPass();
-    if (!pass) return;
-    if ((await unlockCurrentPage(pass)) === "ok") setUnlockedIcon(true);
-}
-
-function setupUnlock() {
-    const dialog = document.getElementById("unlock-dialog");
-    const form = document.getElementById("unlock-form");
-    const input = document.getElementById("unlock-input") as HTMLInputElement | null;
-    const message = document.getElementById("unlock-message");
-    const toggle = document.getElementById("unlock-switch");
-    if (!dialog || !form || !input || !message || !toggle) return;
-
-    const close = () => {
-        dialog.classList.add("hidden");
-        dialog.classList.remove("flex");
-    };
-    toggle.onclick = () => {
-        if (readPass()) {
-            try {
-                sessionStorage.removeItem(PASS_KEY);
-            } catch {}
-            location.reload();
-            return;
-        }
-        input.value = "";
-        message.textContent = "";
-        dialog.classList.remove("hidden");
-        dialog.classList.add("flex");
-        input.focus();
-    };
-    document.getElementById("unlock-cancel")!.onclick = close;
-    dialog.onclick = (e) => {
-        if (e.target === dialog) close();
-    };
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-        const result = await unlockCurrentPage(input.value);
-        if (result === "ok") {
-            try {
-                sessionStorage.setItem(PASS_KEY, input.value);
-            } catch {}
-            setUnlockedIcon(true);
-            close();
-        } else if (result === "no-slot") {
-            message.textContent = "当前页面没有加密内容，请在文章页使用。";
-        } else if (result === "missing") {
-            message.textContent = "这篇文章的完整版还没有发布。";
-        } else {
-            message.textContent = "暗号不对。";
-        }
-    };
-}
-
-setupUnlock();
-applySavedPass();
-function hookSwup() {
-    window.swup.hooks.on("page:view", applySavedPass);
-}
-if (window.swup?.hooks) hookSwup();
-else document.addEventListener("swup:enable", hookSwup);
 </script>
 
 {import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>

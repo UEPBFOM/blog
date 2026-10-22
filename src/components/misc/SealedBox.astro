@@ -1,0 +1,182 @@
+---
+---
+<div id="sealed-box-wrap" class="flex flex-col items-center mb-6">
+    <button type="button" id="sealed-box" class="sealed-box" aria-label="打开上锁的匣子，输入暗号阅读完整版">
+        <svg viewBox="0 0 260 150" role="img" aria-hidden="true">
+            <ellipse cx="130" cy="138" rx="92" ry="6" fill="currentColor" opacity="0.08"/>
+            <rect x="46" y="62" width="168" height="72" rx="4" fill="#BA7517"/>
+            <path d="M46 66 Q46 36 130 36 Q214 36 214 66 Z" fill="#854F0B"/>
+            <rect x="46" y="62" width="168" height="5" fill="#412402" opacity="0.35"/>
+            <rect class="chain chain-l" x="70" y="36" width="12" height="98" rx="3" fill="#888780"/>
+            <rect class="chain chain-r" x="178" y="36" width="12" height="98" rx="3" fill="#888780"/>
+            <rect x="70" y="84" width="120" height="10" rx="3" fill="#5F5E5A"/>
+            <g class="lock">
+                <path class="shackle" d="M120 80 V70 a10 10 0 0 1 20 0 V80" fill="none" stroke="#5F5E5A" stroke-width="5" stroke-linecap="round"/>
+                <rect x="112" y="78" width="36" height="28" rx="5" fill="#444441"/>
+                <circle cx="130" cy="90" r="4" fill="#B4B2A9"/>
+                <rect x="128.5" y="92" width="3" height="8" rx="1.5" fill="#B4B2A9"/>
+            </g>
+            <g class="key">
+                <path d="M236 22 Q248 40 232 62" fill="none" stroke="#888780" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <circle cx="232" cy="68" r="9" fill="#1D9E75"/>
+                <rect x="238" y="66" width="28" height="5" rx="2" fill="#1D9E75"/>
+                <rect x="258" y="71" width="4" height="7" rx="1" fill="#1D9E75"/>
+                <rect x="250" y="71" width="4" height="5" rx="1" fill="#1D9E75"/>
+                <circle cx="232" cy="68" r="3.5" fill="var(--card-bg)"/>
+            </g>
+        </svg>
+        <span class="text-sm text-black/60 dark:text-white/60">还有一些没说完的话</span>
+        <span class="box-hint text-xs text-black/40 dark:text-white/40">把钥匙对准锁，输入暗号</span>
+    </button>
+
+    <div id="sealed-dialog" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 px-4">
+        <form id="sealed-form" class="card-base w-full max-w-sm p-6 flex flex-col gap-3">
+            <div class="font-bold text-lg text-black/90 dark:text-white/90">输入暗号</div>
+            <div class="text-sm text-black/50 dark:text-white/50">提示：my nickname</div>
+            <input id="sealed-input" type="password" autocomplete="off" aria-label="暗号"
+                   class="w-full h-11 rounded-lg px-3 bg-black/5 dark:bg-white/10 outline-none text-black/80 dark:text-white/80" />
+            <div id="sealed-message" class="text-sm text-black/50 dark:text-white/50 min-h-5"></div>
+            <div class="flex justify-end gap-2">
+                <button type="button" id="sealed-cancel" class="btn-plain rounded-lg h-10 px-4 active:scale-95">取消</button>
+                <button type="submit" class="btn-regular rounded-lg h-10 px-4 active:scale-95">解锁</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .sealed-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 1rem 2rem;
+        cursor: pointer;
+        background: none;
+        border: none;
+        border-radius: 12px;
+        color: var(--deep-text);
+    }
+    .sealed-box svg { width: 240px; height: auto; overflow: visible; }
+    .sealed-box .lock { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 0.3s; }
+    .sealed-box .shackle { transform-box: fill-box; transform-origin: 0% 100%; transition: transform 0.3s; }
+    .sealed-box .key { transform-box: fill-box; transform-origin: 100% 50%; transition: transform 0.4s cubic-bezier(0.3, 1.4, 0.5, 1); }
+    .sealed-box .chain { transition: transform 0.4s; }
+    .sealed-box .box-hint { opacity: 0; transition: opacity 0.3s; height: 1rem; }
+    .sealed-box:hover .lock, .sealed-box:focus-visible .lock { transform: rotate(-6deg); }
+    .sealed-box:hover .shackle, .sealed-box:focus-visible .shackle { transform: translateY(-3px) rotate(-14deg); }
+    .sealed-box:hover .key, .sealed-box:focus-visible .key { transform: translate(-26px, -8px) rotate(-18deg); }
+    .sealed-box:hover .chain-l, .sealed-box:focus-visible .chain-l { transform: translateX(-2px); }
+    .sealed-box:hover .chain-r, .sealed-box:focus-visible .chain-r { transform: translateX(2px); }
+    .sealed-box:hover .box-hint, .sealed-box:focus-visible .box-hint { opacity: 1; }
+    /* touch screens have no hover, so keep the hint visible */
+    @media (hover: none) { .sealed-box .box-hint { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+        .sealed-box * { transition: none !important; }
+    }
+</style>
+
+<script>
+const PASS_KEY = "private-pass";
+const decode = (value: string) => Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
+
+async function decryptFile(pass: string, src: string): Promise<string> {
+    const res = await fetch(src);
+    if (!res.ok) throw new Error("missing");
+    const file = await res.json();
+    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]);
+    const key = await crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: decode(file.salt), iterations: file.iter, hash: "SHA-256" },
+        base,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["decrypt"],
+    );
+    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: decode(file.iv) }, key, decode(file.data));
+    return new TextDecoder().decode(plain);
+}
+
+type UnlockResult = "ok" | "wrong" | "missing" | "no-slot";
+
+async function unlockCurrentPage(pass: string): Promise<UnlockResult> {
+    const slot = document.getElementById("private-slot");
+    if (!slot) return "no-slot";
+    let html: string;
+    try {
+        html = await decryptFile(pass, slot.dataset.src ?? "");
+    } catch (e) {
+        return (e as Error).message === "missing" ? "missing" : "wrong";
+    }
+    slot.innerHTML = html;
+    slot.classList.remove("hidden");
+    document.getElementById("public-content")?.classList.add("hidden");
+    document.getElementById("sealed-box-wrap")?.classList.add("hidden");
+    return "ok";
+}
+
+function readPass(): string | null {
+    try {
+        return sessionStorage.getItem(PASS_KEY);
+    } catch {
+        return null;
+    }
+}
+
+function applySavedPass() {
+    const pass = readPass();
+    if (pass) void unlockCurrentPage(pass);
+}
+
+function closeDialog() {
+    const dialog = document.getElementById("sealed-dialog");
+    dialog?.classList.add("hidden");
+    dialog?.classList.remove("flex");
+}
+
+// The post content is swapped by swup, so listen on the document instead of the elements.
+document.addEventListener("click", (e) => {
+    const target = e.target as Element | null;
+    if (target?.closest("#sealed-box")) {
+        const dialog = document.getElementById("sealed-dialog");
+        const input = document.getElementById("sealed-input") as HTMLInputElement | null;
+        const message = document.getElementById("sealed-message");
+        if (!dialog || !input || !message) return;
+        input.value = "";
+        message.textContent = "";
+        dialog.classList.remove("hidden");
+        dialog.classList.add("flex");
+        input.focus();
+    } else if (target?.closest("#sealed-cancel") || target?.id === "sealed-dialog") {
+        closeDialog();
+    }
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeDialog();
+});
+
+document.addEventListener("submit", async (e) => {
+    if ((e.target as Element | null)?.id !== "sealed-form") return;
+    e.preventDefault();
+    const input = document.getElementById("sealed-input") as HTMLInputElement;
+    const message = document.getElementById("sealed-message") as HTMLElement;
+    const result = await unlockCurrentPage(input.value);
+    if (result === "ok") {
+        try {
+            sessionStorage.setItem(PASS_KEY, input.value);
+        } catch {}
+        closeDialog();
+    } else if (result === "missing") {
+        message.textContent = "完整版还没有发布。";
+    } else {
+        message.textContent = "暗号不对。";
+    }
+});
+
+applySavedPass();
+function hookSwup() {
+    window.swup.hooks.on("page:view", applySavedPass);
+}
+if (window.swup?.hooks) hookSwup();
+else document.addEventListener("swup:enable", hookSwup);
+</script>

@@ -1,6 +1,6 @@
 ---
 title: 读完《Prompting Best Practices》，我才开始正经用 Agent
-published: "2026-10-23T20:00:00+08:00"
+published: "2026-10-23T19:00:00+08:00"
 description: 从"会用"到"会交代"：一篇官方文档、一场不及格的小测，和我准备改掉的几个习惯
 tags: [Agent, Claude, 提示工程, 学习笔记]
 category: 学习

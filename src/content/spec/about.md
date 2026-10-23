@@ -1,6 +1,6 @@
 # 关于我
 
-你好，我是 MFxian，一名大三软件工程专业的学生。
+你好，这里是MFxian，一名大三软件工程专业的学生。
 
 [我的 GitHub](https://github.com/UEPBFOM)
 

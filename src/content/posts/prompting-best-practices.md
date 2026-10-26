@@ -1,3 +1,5 @@
+ 
+
 ---
 title: 读完《Prompting Best Practices》，我才开始正经用 Agent
 published: "2026-10-23T19:00:00+08:00"
@@ -7,7 +9,7 @@ category: 学习
 draft: false
 lang: ''
 ---
-在这之前，我用 agent 的方式大概是：想到什么就打什么，它做出来了就收下，做歪了就骂一句再让它重来。能用，但说不上"会用"。
+在这之前，我用 agent 的方式大概是 ：想到什么就打什么，它做出来了就收下，做歪了就骂一句再让它重来。能用，但说不上"会用"。
 
 今天花了大半天，跟着 Claude 把 Anthropic 官方的《Prompting best practices》和《为 Claude Sonnet 5.5 编写提示》从头啃了一遍，又顺带问了 CLAUDE.md 怎么写、任务怎么拆、怎么让 agent 自己证明活干完了。读完最大的感受是：**我以前缺的不是提示词技巧，而是"把它当成一个需要被交代清楚的同事"这个意识。**
 

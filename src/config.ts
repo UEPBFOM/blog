@@ -42,13 +42,14 @@ export const navBarConfig: NavBarConfig = {
 	links: [
 		{ name: "Blog", url: "/" },
 		{ name: "Notes", url: "/notes/" },
-		{ name: "Lab", url: "/lab/" },
-		{ name: "Talks", url: "/talks/" },
-		{ name: "Projects", url: "/projects/" },
+		// Hidden until they have content; the pages still exist.
+		// { name: "Lab", url: "/lab/" },
+		// { name: "Talks", url: "/talks/" },
+		// { name: "Projects", url: "/projects/" },
 		{ name: "Archive", url: "/archive/" },
-		{ name: "Links", url: "/links/" },
+		// { name: "Links", url: "/links/" },
 		{ name: "About", url: "/about/" },
-		{ name: "Contact", url: "/contact/" },
+		// { name: "Contact", url: "/contact/" },
 		{
 			name: "GitHub",
 			url: "https://github.com/UEPBFOM", // Internal links should not include the base path, as it is automatically added

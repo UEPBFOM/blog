@@ -14,6 +14,7 @@ const postsCollection = defineCollection({
 			updated: postDate.optional(),
 			draft: z.boolean().optional().default(false),
 			encrypted: z.string().optional(),
+			status: z.enum(["done", "partial", "wip"]).optional(),
 			description: z.string().optional().default(""),
 			image: z.string().optional().default(""),
 			tags: z.array(z.string()).optional().default([]),

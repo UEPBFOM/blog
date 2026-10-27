@@ -12,6 +12,7 @@ import { Icon } from "astro-icon/components";
 import { licenseConfig } from "src/config";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../components/PostMeta.astro";
+import StatusBadge from "../../components/misc/StatusBadge.astro";
 import { profileConfig, siteConfig } from "../../config";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
 
@@ -91,6 +92,7 @@ const jsonLd = {
                 ">
                     {entry.data.title}
                 </div>
+                {entry.data.status && <StatusBadge status={entry.data.status} class="mb-4" />}
             </div>
 
             <!-- metadata -->

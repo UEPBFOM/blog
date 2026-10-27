@@ -13,6 +13,7 @@ import { licenseConfig } from "src/config";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
 import PostMetadata from "../../components/PostMeta.astro";
 import StatusBadge from "../../components/misc/StatusBadge.astro";
+import Comments from "../../components/misc/Comments.astro";
 import { profileConfig, siteConfig } from "../../config";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
 
@@ -154,5 +155,7 @@ const jsonLd = {
             </div>}
         </a>
     </div>
+
+    <Comments term={entry.slug} />
 
 </MainGridLayout>

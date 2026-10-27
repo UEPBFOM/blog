@@ -1,0 +1,76 @@
+---
+import { commentConfig } from "../../config";
+
+interface Props {
+	term: string;
+}
+
+const { giscus } = commentConfig;
+const ready =
+	commentConfig.enable &&
+	giscus.repo !== "" &&
+	giscus.repoId !== "" &&
+	giscus.categoryId !== "";
+---
+{ready && (
+    <div class="card-base p-6 mb-4 onload-animation">
+        <div
+            id="giscus-slot"
+            data-repo={giscus.repo}
+            data-repo-id={giscus.repoId}
+            data-category={giscus.category}
+            data-category-id={giscus.categoryId}
+            data-term={Astro.props.term}
+        ></div>
+    </div>
+)}
+
+<script>
+const themeName = () =>
+    document.documentElement.classList.contains("dark") ? "transparent_dark" : "light";
+
+// giscus only reads its data-* options once, so the script is recreated for each page.
+function mountGiscus() {
+    const slot = document.getElementById("giscus-slot");
+    if (!slot || slot.dataset.mounted) return;
+    slot.dataset.mounted = "true";
+    const s = document.createElement("script");
+    s.src = "https://giscus.app/client.js";
+    s.async = true;
+    s.crossOrigin = "anonymous";
+    const options: Record<string, string> = {
+        repo: slot.dataset.repo ?? "",
+        "repo-id": slot.dataset.repoId ?? "",
+        category: slot.dataset.category ?? "",
+        "category-id": slot.dataset.categoryId ?? "",
+        // Keyed by post slug, so a thread survives domain or URL changes.
+        mapping: "specific",
+        term: slot.dataset.term ?? "",
+        strict: "1",
+        "reactions-enabled": "1",
+        "emit-metadata": "0",
+        "input-position": "top",
+        theme: themeName(),
+        lang: "zh-CN",
+        loading: "lazy",
+    };
+    for (const [key, value] of Object.entries(options)) s.setAttribute(`data-${key}`, value);
+    slot.appendChild(s);
+}
+
+// Follow the light/dark switch without reloading the thread.
+new MutationObserver(() => {
+    const frame = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+    frame?.contentWindow?.postMessage(
+        { giscus: { setConfig: { theme: themeName() } } },
+        "https://giscus.app",
+    );
+}).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+mountGiscus();
+function hookSwup() {
+    window.swup.hooks.on("page:view", mountGiscus);
+}
+if (window.swup?.hooks) hookSwup();
+else document.addEventListener("swup:enable", hookSwup);
+</script>

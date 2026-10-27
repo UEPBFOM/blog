@@ -1,4 +1,5 @@
 import type {
+	CommentConfig,
 	ExpressiveCodeConfig,
 	LicenseConfig,
 	NavBarConfig,
@@ -75,6 +76,18 @@ export const licenseConfig: LicenseConfig = {
 	enable: false,
 	name: "CC BY-NC-SA 4.0",
 	url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+};
+
+// Comments are stored in GitHub Discussions through giscus (https://giscus.app).
+// Fill in the values that page generates for your repo, then set enable to true.
+export const commentConfig: CommentConfig = {
+	enable: false,
+	giscus: {
+		repo: "", // e.g. "UEPBFOM/blog-comments", must be public with Discussions on
+		repoId: "",
+		category: "Announcements",
+		categoryId: "",
+	},
 };
 
 export const expressiveCodeConfig: ExpressiveCodeConfig = {

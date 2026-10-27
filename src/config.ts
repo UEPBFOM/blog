@@ -81,12 +81,12 @@ export const licenseConfig: LicenseConfig = {
 // Comments are stored in GitHub Discussions through giscus (https://giscus.app).
 // Fill in the values that page generates for your repo, then set enable to true.
 export const commentConfig: CommentConfig = {
-	enable: false,
+	enable: true,
 	giscus: {
-		repo: "", // e.g. "UEPBFOM/blog-comments", must be public with Discussions on
-		repoId: "",
+		repo: "UEPBFOM/blog",
+		repoId: "R_kgDOVZL-cw",
 		category: "Announcements",
-		categoryId: "",
+		categoryId: "DIC_kwDOVZL-c84DJvYL",
 	},
 };
 

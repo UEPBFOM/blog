@@ -5,7 +5,6 @@ import type {
 	ProfileConfig,
 	SiteConfig,
 } from "./types/config";
-import { LinkPreset } from "./types/config";
 
 export const siteConfig: SiteConfig = {
 	title: "MFxian Blog",
@@ -41,9 +40,15 @@ export const siteConfig: SiteConfig = {
 
 export const navBarConfig: NavBarConfig = {
 	links: [
-		LinkPreset.Home,
-		LinkPreset.Archive,
-		LinkPreset.About,
+		{ name: "Blog", url: "/" },
+		{ name: "Notes", url: "/notes/" },
+		{ name: "Lab", url: "/lab/" },
+		{ name: "Talks", url: "/talks/" },
+		{ name: "Projects", url: "/projects/" },
+		{ name: "Archive", url: "/archive/" },
+		{ name: "Links", url: "/links/" },
+		{ name: "About", url: "/about/" },
+		{ name: "Contact", url: "/contact/" },
 		{
 			name: "GitHub",
 			url: "https://github.com/UEPBFOM", // Internal links should not include the base path, as it is automatically added

@@ -91,6 +91,9 @@ const bannerOffset =
 		<meta property="og:url" content={Astro.url}>
 		<meta property="og:title" content={pageTitle}>
 		<meta property="og:description" content={description || pageTitle}>
+		<meta property="og:image" content={new URL(url("/og.jpg"), Astro.site ?? Astro.url).href}>
+		<meta property="og:image:width" content="1200">
+		<meta property="og:image:height" content="630">
 		{setOGTypeArticle ? (
         <meta property="og:type" content="article" />
         ) : (
@@ -101,6 +104,7 @@ const bannerOffset =
 		<meta property="twitter:url" content={Astro.url}>
 		<meta name="twitter:title" content={pageTitle}>
 		<meta name="twitter:description" content={description || pageTitle}>
+		<meta name="twitter:image" content={new URL(url("/og.jpg"), Astro.site ?? Astro.url).href}>
 
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />

@@ -30,6 +30,11 @@ export const siteConfig: SiteConfig = {
 		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
 	},
 	favicon: [
+		// Generated from the avatar
+		{ src: "/favicon/avatar-32.png", sizes: "32x32" },
+		{ src: "/favicon/avatar-128.png", sizes: "128x128" },
+		{ src: "/favicon/avatar-180.png", sizes: "180x180" },
+		{ src: "/favicon/avatar-192.png", sizes: "192x192" },
 		// Leave this array empty to use the default favicon
 		// {
 		//   src: '/favicon/icon.png',    // Path of the favicon, relative to the /public directory

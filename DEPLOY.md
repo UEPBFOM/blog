@@ -17,7 +17,7 @@
 
 ## 站点地址
 
-站点地址由环境变量 `PUBLIC_SITE_URL` 决定（用于 sitemap、RSS、canonical）。未设置时回退到 `http://localhost:4321/`，所以上线前需要设置。
+站点地址由环境变量 `PUBLIC_SITE_URL` 决定（用于 sitemap、RSS、canonical）。未设置时回退到 `https://blog.uepbfom.workers.dev/`。
 
 - 使用 workers.dev 预览：在 Cloudflare 项目的 Settings → Variables and secrets 中设置 `PUBLIC_SITE_URL=https://blog.<你的子域>.workers.dev`。
 - 绑定自定义域名后：在 Domains and routes 添加域名，把 `PUBLIC_SITE_URL` 改为 `https://你的域名`，重新部署。

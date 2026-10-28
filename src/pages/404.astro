@@ -1,0 +1,20 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { Icon } from "astro-icon/components";
+import { url } from "../utils/url-utils";
+---
+<MainGridLayout title="404" description="页面不存在">
+    <div class="card-base px-9 py-16 flex flex-col items-center text-center onload-animation">
+        <div class="text-7xl font-bold text-[var(--primary)] mb-4">404</div>
+        <div class="text-xl font-bold text-90 mb-2">这里什么都没有</div>
+        <div class="text-75 mb-8">可能是地址写错了，或者这篇文章已经搬走了。</div>
+        <div class="flex flex-wrap justify-center gap-3">
+            <a href={url("/")} class="btn-regular rounded-lg h-11 px-5 gap-1 active:scale-95">
+                <Icon name="material-symbols:home-outline-rounded" class="text-xl" />回首页
+            </a>
+            <a href={url("/archive/")} class="btn-plain rounded-lg h-11 px-5 gap-1 active:scale-95">
+                <Icon name="material-symbols:archive-outline-rounded" class="text-xl" />看看归档
+            </a>
+        </div>
+    </div>
+</MainGridLayout>

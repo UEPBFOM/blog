@@ -1,0 +1,42 @@
+{
+	"updated": "2026-10-29",
+	"timeZone": "Asia/Shanghai",
+	"days": {
+		"2026-10-23": {
+			"input": 338,
+			"output": 139970,
+			"cacheWrite": 672260,
+			"cacheRead": 29812295
+		},
+		"2026-10-24": {
+			"input": 272,
+			"output": 99194,
+			"cacheWrite": 258902,
+			"cacheRead": 28709650
+		},
+		"2026-10-26": {
+			"input": 58,
+			"output": 21854,
+			"cacheWrite": 71380,
+			"cacheRead": 2674797
+		},
+		"2026-10-27": {
+			"input": 460,
+			"output": 99128,
+			"cacheWrite": 545055,
+			"cacheRead": 25601642
+		},
+		"2026-10-28": {
+			"input": 154,
+			"output": 46475,
+			"cacheWrite": 265292,
+			"cacheRead": 9119435
+		},
+		"2026-10-29": {
+			"input": 6,
+			"output": 3656,
+			"cacheWrite": 193845,
+			"cacheRead": 517871
+		}
+	}
+}

@@ -1,4 +1,5 @@
 ---
+import BannerHero from "@components/BannerHero.astro";
 import BackToTop from "@components/control/BackToTop.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
@@ -57,6 +58,7 @@ const mainPanelTop = siteConfig.banner.enable
                   src={siteConfig.banner.src} position={siteConfig.banner.position}
     >
     </ImageWrapper>
+    <BannerHero />
 </div>}
 
 <!-- Main content -->

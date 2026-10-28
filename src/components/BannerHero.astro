@@ -1,0 +1,71 @@
+---
+// Name and bio laid over the bottom of the banner, shown on the home page only.
+import { profileConfig } from "../config";
+import { MAIN_PANEL_OVERLAPS_BANNER_HEIGHT } from "../constants/constants";
+
+const bio = profileConfig.bio ?? "";
+---
+<div id="banner-hero" class="absolute left-0 right-0 pointer-events-none"
+     style={`bottom: ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT + 4}rem; --chars: ${[...bio].length}`}>
+    <div class="max-w-[var(--page-width)] mx-auto px-6 md:px-8">
+        <div class="hero-name text-4xl md:text-5xl font-bold text-white">{profileConfig.name}</div>
+        {bio && <div class="hero-bio mt-2 text-base md:text-lg text-white/85"><span>{bio}</span></div>}
+    </div>
+</div>
+
+<style is:global>
+    #banner-hero {
+        text-shadow: 0 2px 12px rgb(0 0 0 / 0.55);
+        transition: opacity 0.5s ease;
+    }
+    /* The banner stays mounted across page transitions, so hide the text away from home */
+    body:not(.lg\:is-home) #banner-hero { opacity: 0; }
+
+    #banner-hero .hero-name,
+    #banner-hero .hero-bio { opacity: 0; }
+    #banner-hero.play .hero-name { animation: hero-rise 0.8s ease forwards; }
+    #banner-hero.play .hero-bio { animation: hero-rise 0.8s ease 0.25s forwards; }
+    /* Typewriter: CJK characters are about 1em wide, so the bio is revealed one em per step */
+    #banner-hero.play .hero-bio span {
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        vertical-align: bottom;
+        border-right: 2px solid rgb(255 255 255 / 0.8);
+        padding-right: 2px;
+        width: 0;
+        animation:
+            hero-type calc(var(--chars) * 0.12s) steps(var(--chars)) 0.6s forwards,
+            hero-caret 0.9s step-end 0.6s 4 forwards;
+    }
+    @keyframes hero-rise {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes hero-type { to { width: calc(var(--chars) * 1em + 4px); } }
+    /* blink a few times, then leave the caret hidden */
+    @keyframes hero-caret { 50%, to { border-color: transparent; } }
+
+    @media (prefers-reduced-motion: reduce) {
+        #banner-hero.play .hero-name,
+        #banner-hero.play .hero-bio { animation: none; opacity: 1; }
+        #banner-hero.play .hero-bio span { animation: none; width: auto; border-right: 0; }
+    }
+</style>
+
+<script>
+// Play the entrance once the splash (if any) has gone, so it is not wasted behind it.
+const hero = document.getElementById("banner-hero");
+if (hero) {
+    const play = () => hero.classList.add("play");
+    if (!document.getElementById("splash")) play();
+    else {
+        const watch = new MutationObserver(() => {
+            if (document.getElementById("splash")) return;
+            watch.disconnect();
+            play();
+        });
+        watch.observe(document.body, { childList: true });
+    }
+}
+</script>

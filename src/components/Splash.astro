@@ -2,10 +2,10 @@
 import { profileConfig } from "../config";
 import ImageWrapper from "./misc/ImageWrapper.astro";
 ---
-<!-- Skip the splash before it paints if this tab has already entered the blog -->
+<!-- Skip the splash before it paints if this browser entered the blog in the last day -->
 <script is:inline>
     try {
-        if (sessionStorage.getItem("splash-seen")) document.documentElement.classList.add("splash-seen");
+        if (Date.now() - Number(localStorage.getItem("splash-seen")) < 86400000) document.documentElement.classList.add("splash-seen");
     } catch {}
 </script>
 
@@ -467,7 +467,7 @@ function startSplash(splash: HTMLElement) {
         if (entering) return;
         entering = true;
         try {
-            sessionStorage.setItem("splash-seen", "1");
+            localStorage.setItem("splash-seen", String(Date.now()));
         } catch {}
         tip.style.opacity = "0";
 

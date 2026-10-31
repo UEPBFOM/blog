@@ -5,6 +5,7 @@ description: 从 Python 走到 TypeScript，我卡住过的地方整理成一份
 tags: [TypeScript, Python, 学习笔记]
 category: 学习
 status: partial
+type: note
 draft: false
 lang: ''
 ---

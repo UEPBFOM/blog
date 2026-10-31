@@ -46,12 +46,12 @@ export const siteConfig: SiteConfig = {
 
 export const navBarConfig: NavBarConfig = {
 	links: [
-		{ name: "Blog", url: "/" },
+		{ name: "Blog", url: "/blog/" },
 		{ name: "Notes", url: "/notes/" },
+		{ name: "Projects", url: "/projects/" },
 		// Hidden until they have content; the pages still exist.
 		// { name: "Lab", url: "/lab/" },
 		// { name: "Talks", url: "/talks/" },
-		// { name: "Projects", url: "/projects/" },
 		{ name: "Archive", url: "/archive/" },
 		// { name: "Links", url: "/links/" },
 		{ name: "About", url: "/about/" },

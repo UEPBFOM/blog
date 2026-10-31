@@ -114,6 +114,7 @@ The base is the [Fuwari](https://github.com/saicaca/fuwari) template. Keep its l
 - **Grid.** The page is at most 75rem wide: a 17.5rem sidebar on the left and the content on the right, with a 1rem gap. Below `lg` (1024px) the sidebar moves under the content.
 - **Banner.** Pages have a 45vh banner. The home banner is 51vh (45 + 6), with the name and bio laid over its lower left. The main panel overlaps the banner by 3.5rem.
 - **Cards.** Content sits in cards with generous padding (about 2.25rem across on posts and About). One idea per card; separate cards with 1rem.
+- **Navigation.** Blog, Notes, Projects, Archive, About, GitHub. The brand on the left goes home. Prev and next on a post stay within its section.
 - **Sidebar.** Profile, then categories, tags, and the token usage card. Sidebar cards stay compact: a title, a little content, no scrolling inside.
 - **Whitespace over lines.** Prefer space to divider lines. When a divider is needed, use `--line-divider` (8% black or white).
 
@@ -132,8 +133,10 @@ The design is flat. Depth comes from surface lightness, not shadows: page backgr
 
 - **Card** (`card-base`): the default container. White or `card-bg-dark`, 1rem radius, no border, no shadow.
 - **Buttons.** `btn-regular` is a tinted fill for primary actions (the 404 page's "回首页"). `btn-plain` is transparent with a tinted hover for secondary actions and nav. `btn-card` is for large clickable areas such as the post card arrow. Press states scale to 95%.
-- **Post card.** Title, status badge on the right, meta row, description, word count and reading time. No cover images for now.
-- **Status badge.** Three states only: 已完成 (done), 待补充 (partial), 施工中 (wip). It is a label, not a button, so it has no hover state.
+- **Sections.** Content is split into Blog, Notes and Projects by `type:` in a post's frontmatter (`blog` by default). Each has its own list page in the navbar (`/blog/`, `/notes/`, `/projects/`) with a header card holding its name and one-line description. Names and descriptions live in `src/constants/sections.ts`.
+- **Home sections.** The home page is an overview, not a feed: one card per section with its name, description, a "全部 N" link to the full list, and the latest three posts as compact rows (title, date, one-line description). An empty section says 还在整理中，敬请期待。
+- **Post card.** Title, meta row, description, word count and reading time. In the Notes list it also carries the status badge on the right. No cover images for now.
+- **Status badge.** Three states only: 已完成 (done), 待补充 (partial), 施工中 (wip). It appears only on notes: in the Notes list and on a note's own page, never on the home page or in Blog. It is a label, not a button, so it has no hover state.
 - **Banner hero.** `MFxian` and the bio over the home banner, white with a soft shadow, aligned with the sidebar's left edge. It fades out away from home.
 - **Splash.** Shown at most once a day per browser on the home page: a procedural night sky, the avatar in the centre, and one short hint (点击头像). Esc or Enter also enter. It must never be the only way in.
 - **Token usage card.** A 16-week heatmap in the sidebar, cells at most 14px, shaded by quartiles of active days in `--primary` at 30/55/80/100%.

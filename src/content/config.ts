@@ -15,6 +15,8 @@ const postsCollection = defineCollection({
 			draft: z.boolean().optional().default(false),
 			encrypted: z.string().optional(),
 			status: z.enum(["done", "partial", "wip"]).optional(),
+			// Which section the post belongs to: Blog, Notes or Projects.
+			type: z.enum(["blog", "note", "project"]).optional().default("blog"),
 			description: z.string().optional().default(""),
 			image: z.string().optional().default(""),
 			tags: z.array(z.string()).optional().default([]),

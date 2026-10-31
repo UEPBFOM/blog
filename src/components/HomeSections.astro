@@ -1,0 +1,65 @@
+---
+// The home page: the latest few posts of each section, with a link to the full list.
+import {
+	EMPTY_SECTION_TEXT,
+	SECTIONS,
+	type SectionType,
+} from "@constants/sections";
+import { getSortedPostsOfType } from "@utils/content-utils";
+import { getDateParts } from "@utils/date-utils";
+import { getPostUrlBySlug, url } from "@utils/url-utils";
+import { Icon } from "astro-icon/components";
+
+const PER_SECTION = 3;
+
+const sections = await Promise.all(
+	(Object.keys(SECTIONS) as SectionType[]).map(async (type) => ({
+		...SECTIONS[type],
+		posts: await getSortedPostsOfType(type),
+	})),
+);
+
+const day = (date: Date) => {
+	const p = getDateParts(date);
+	return `${p.year}-${p.month}-${p.day}`;
+};
+---
+<div class="flex flex-col gap-4 mb-4">
+    {sections.map((section, i) => (
+        <section class="card-base px-6 md:px-9 pt-6 pb-4 onload-animation"
+                 style={`animation-delay: calc(var(--content-delay) + ${i * 75}ms)`}>
+            <div class="flex items-center justify-between gap-4">
+                <a href={url(section.url)}
+                   class="relative font-bold text-2xl text-90 transition hover:text-[var(--primary)]
+                   before:hidden md:before:block before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
+                   before:absolute before:left-[-1.125rem] before:top-[0.45rem]">
+                    {section.name}
+                </a>
+                <a href={url(section.url)} class="btn-plain rounded-lg h-9 pl-3 pr-1.5 shrink-0 text-sm text-50 hover:text-[var(--primary)]">
+                    全部 {section.posts.length}
+                    <Icon name="material-symbols:chevron-right-rounded" class="text-xl"></Icon>
+                </a>
+            </div>
+            <div class="text-sm text-50 mt-1 mb-3">{section.description}</div>
+
+            {section.posts.length === 0 ? (
+                <div class="text-75 py-2 mb-2">{EMPTY_SECTION_TEXT}</div>
+            ) : (
+                <ul>
+                    {section.posts.slice(0, PER_SECTION).map((post) => (
+                        <li>
+                            <a href={getPostUrlBySlug(post.slug)}
+                               class="group flex flex-col -mx-3 px-3 py-2.5 rounded-lg transition hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]">
+                                <div class="flex items-baseline gap-4">
+                                    <span class="flex-1 min-w-0 truncate font-medium text-90 transition group-hover:text-[var(--primary)]">{post.data.title}</span>
+                                    <span class="shrink-0 text-sm text-50 tabular-nums">{day(post.data.published)}</span>
+                                </div>
+                                {post.data.description && <div class="text-sm text-50 truncate mt-0.5">{post.data.description}</div>}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </section>
+    ))}
+</div>

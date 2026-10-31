@@ -20,16 +20,26 @@ async function getRawSortedPosts() {
 export async function getSortedPosts() {
 	const sorted = await getRawSortedPosts();
 
-	for (let i = 1; i < sorted.length; i++) {
-		sorted[i].data.nextSlug = sorted[i - 1].slug;
-		sorted[i].data.nextTitle = sorted[i - 1].data.title;
-	}
-	for (let i = 0; i < sorted.length - 1; i++) {
-		sorted[i].data.prevSlug = sorted[i + 1].slug;
-		sorted[i].data.prevTitle = sorted[i + 1].data.title;
+	// Prev and next stay within one section, so a note leads to other notes.
+	for (const type of new Set(sorted.map((post) => post.data.type))) {
+		const group = sorted.filter((post) => post.data.type === type);
+		for (let i = 1; i < group.length; i++) {
+			group[i].data.nextSlug = group[i - 1].slug;
+			group[i].data.nextTitle = group[i - 1].data.title;
+		}
+		for (let i = 0; i < group.length - 1; i++) {
+			group[i].data.prevSlug = group[i + 1].slug;
+			group[i].data.prevTitle = group[i + 1].data.title;
+		}
 	}
 
 	return sorted;
+}
+
+export type PostType = CollectionEntry<"posts">["data"]["type"];
+
+export async function getSortedPostsOfType(type: PostType) {
+	return (await getSortedPosts()).filter((post) => post.data.type === type);
 }
 export type PostForList = {
 	slug: string;

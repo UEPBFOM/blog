@@ -1,0 +1,13 @@
+---
+import SectionListing from "@components/SectionListing.astro";
+import { PAGE_SIZE } from "@constants/constants";
+import { getSortedPostsOfType } from "@utils/content-utils";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = (async ({ paginate }) => {
+	return paginate(await getSortedPostsOfType("project"), { pageSize: PAGE_SIZE });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+<SectionListing type="project" page={page} />

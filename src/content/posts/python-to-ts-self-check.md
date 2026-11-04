@@ -397,6 +397,8 @@ pluck(messages, "foo");   // ❌ "foo" 不是 Message 的键
 - `K extends keyof T`：K 只能是其中之一，所以 `"foo"` 过不了。
 - `T[K]`：取这个键对应的值的类型，和 Q17 的 `Message["role"]` 是同一个写法，只是键换成了变量。
 
+把 T 想成一张 map 最好懂：`keyof T` 是它已有的那些 key，`T[K]` 是 key 对应的值的类型，`T[K][]` 就是"这些值组成的数组"。
+
 Python 的类型注解很难表达这层关系：`[getattr(m, key) for m in items]` 里 `key` 写错，要到运行时才知道。
 </details>
 
@@ -431,7 +433,9 @@ class LRUCache<K, V> {
 1. `Map` 记得插入顺序，"访问一次"就是删掉再插回去，对应 `OrderedDict.move_to_end`。
 2. 最旧的键是 `map.keys().next()`，对应 `popitem(last=False)`。
 
-容量 2，依次 set a、b，get a，再 set c，被淘汰的是 b。
+容量 2，依次 set a、b，get a，再 set c，被淘汰的是 b。思路和操作系统页面置换里的 LRU（最近最少使用）完全一样。
+
+判断键在不在，别写 `if (this.map.get(key))`：值是 `0` 或 `""` 时会被当成"不存在"。要么用 `this.map.has(key)`，要么像上面这样明确比较 `!== undefined`。
 
 顺带两个语法点：`class LRUCache<K, V>` 是泛型类，对应 `class LRUCache(Generic[K, V])`；`constructor(private capacity: number)` 是参数属性，会自动生成同名字段，也正是 Q2 里说的 Node 直接跑不了的写法。
 </details>
@@ -654,20 +658,40 @@ run: async ({ a, b }) => {
 | `{"tool":"add","args":{"a":"1","b":2}}` | `add` 检查参数后抛错，被外层 `catch` 接住 | 参数类型不对 |
 | `{"tool":"add","args":{"a":1,"b":2}}` | 全部通过 | `3` |
 
-`x is Record<string, unknown>` 叫**类型守卫**：自己写一个判断函数，告诉 TS"返回 true 时 x 就是这个类型"，相当于一个可以复用的 `isinstance`。`ToolResult` 也是可辨识联合，这次靠 `ok` 字段区分。
+`x is Record<string, unknown>` 叫**类型守卫**：自己写一个判断函数，告诉 TS"返回 true 时 x 就是这个类型"，相当于一个可以复用的 `isinstance`。练习里原本写的是一长串 `typeof parsed !== "object" || !("tool" in parsed) || ...`，`"tool" in parsed` 本身也能收窄，类型守卫只是把这串检查收成了一个函数。`ToolResult` 也是可辨识联合，这次靠 `ok` 字段区分。
 </details>
 
 ## 六、我踩过的坑
 
-- **大小写**：写成了 `record<string, number>`。TS 区分大小写，是 `Record`；`Object.entries` 的 `Object` 也要大写，小写 `object` 是另一个类型。
+**类型和基础写法（练习 1–4）**
+
+- **大小写**：写成了 `record<string, number>`。TS 区分大小写，是 `Record`；`Object.entries` 的 `Object` 也要大写，小写 `object` 是另一个类型。后来 `clearTimeout` 也写成过 `cleartimeout`。
 - **数组不能直接相减**：排序写了 `b - a`，方向对了，但 a、b 是一对，要写 `b[1] - a[1]`。
 - **可选字段多加了东西**：`name?null` 不合法，`?` 就够了。
+- **字段名和字段的值分不清**（练习 4）：`case "tool_call":` 里的 `"tool_call"` 是 `type` 字段的**值**，进了分支要取的是这种事件的**字段** `e.name`、`e.message`，我却又填了一遍 `tool_call`、`error`。
+- **`never` 填成了 `default`**：`default` 是 switch 的关键字，`never` 才是类型。
 - **以为类型会在运行时拦住错误数据**：不会，外部数据要靠 zod。
+
+**泛型（练习 5–7）**
+
+- **`keyFn` 的返回类型写成了 `T`**：它收一个元素 `T`，吐出的是分组的键 `K`。想通 `K extends PropertyKey` 的办法是翻译成 Python：K is hashable。
+- **`T[K]` 绕了很久**：一直把"查出来的值"和"值的类型"搅在一起。最后用 C++ 的 map 想通了：T 像一张 map，`keyof T` 保证 key 是它已有的 key，`T[K]` 就是这个 key 对应的值的类型。
+- **变量名加了引号**：`item[key]` 写成了 `item["k"]`。加了引号就是字面量字符串 `"k"`，不是参数 `key`。
+- **用 `get` 判断存不存在**：`if (this.map.get(key))` 在值是 `0`、`""` 时会判错，要用 `has`。
+
+**async 和模块（练习 8–10）**
+
+- **改了名的导入还用原名**：`import { setTimeout as sleep }` 之后，这个文件里只能叫 `sleep`，和 Python 的 `import numpy as np` 一样。
+- **Python 的写法带进了 TS**：抛错是 `throw`，不是 `raise`；`allSettled` 的成功状态是字符串 `"fulfilled"`，不是 `true`。
+- **调用时又写了一遍类型**：签名里写 `fn: () => Promise<T>`，函数体里调用只写 `fn()`。
+- **`new Promise` 的两个参数**：`(resolve, reject)`，超时要调的是 `reject`。
+- **`export` 和 `import` 方向反了**：定义东西的文件写 `export`（对外开放），用它的文件写 `import`（拿进来）。
+- **Python 参考代码里的 `*` 和 `**`**：`fake_tool(**c)` 把字典拆成关键字参数，`gather(*coros)` 把列表拆成多个参数，和 Q9 的展开是同一个东西，只是用在了函数调用里。
 
 ## 写在最后
 
 回头看，前 4 题卡住我的多半是 Python 的东西。TS 的类型系统本身不难，难的是它默认你已经熟悉"类型注解""联合""函数是值"这些概念，而我在 Python 里一直绕着它们走。
 
-后 6 题才是 TS 自己的内容：泛型、Promise、模块。其中最该记住的一句是"Promise 一创建就开始执行"，练习 8 的并发、练习 9 为什么要传函数，都是从这一点推出来的。
+后 6 题才是 TS 自己的内容：泛型、Promise、模块。卡得最久的是练习 6 的 `T[K]`，换了好几种解释都没通，最后是用 C++ 的 map 自己想通的。最该记住的一句则是"Promise 一创建就开始执行"，练习 8 的并发、练习 9 为什么要传函数，都是从这一点推出来的。
 
 所以如果你也是从 Python 转过来的，可以先过一遍第一部分。那里答不上来的，到了 TS 里只会更看不懂。

@@ -1,5 +1,5 @@
 {
-	"updated": "2026-10-29",
+	"updated": "2026-11-05",
 	"timeZone": "Asia/Shanghai",
 	"days": {
 		"2026-10-23": {
@@ -33,10 +33,46 @@
 			"cacheRead": 9119435
 		},
 		"2026-10-29": {
-			"input": 6,
-			"output": 3656,
-			"cacheWrite": 193845,
-			"cacheRead": 517871
+			"input": 366,
+			"output": 97878,
+			"cacheWrite": 657796,
+			"cacheRead": 23762733
+		},
+		"2026-10-30": {
+			"input": 44,
+			"output": 14297,
+			"cacheWrite": 145847,
+			"cacheRead": 3651418
+		},
+		"2026-10-31": {
+			"input": 202,
+			"output": 90182,
+			"cacheWrite": 398457,
+			"cacheRead": 17155730
+		},
+		"2026-11-02": {
+			"input": 106,
+			"output": 36714,
+			"cacheWrite": 258470,
+			"cacheRead": 10696466
+		},
+		"2026-11-03": {
+			"input": 92,
+			"output": 38591,
+			"cacheWrite": 448726,
+			"cacheRead": 7921742
+		},
+		"2026-11-04": {
+			"input": 250,
+			"output": 76916,
+			"cacheWrite": 887326,
+			"cacheRead": 32908755
+		},
+		"2026-11-05": {
+			"input": 2,
+			"output": 655,
+			"cacheWrite": 384738,
+			"cacheRead": 45668
 		}
 	}
 }

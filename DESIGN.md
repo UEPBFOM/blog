@@ -112,7 +112,8 @@ The base is the [Fuwari](https://github.com/saicaca/fuwari) template. Keep its l
 ## Layout
 
 - **Grid.** The page is at most 75rem wide: a 17.5rem sidebar on the left and the content on the right, with a 1rem gap. Below `lg` (1024px) the sidebar moves under the content.
-- **Banner.** Pages have a 45vh banner. The home banner is 51vh (45 + 6), with the name and bio laid over its lower left. The main panel overlaps the banner by 3.5rem.
+- **Banner.** Pages have a 45vh banner. On the home page the banner is a full-screen hero (100vh = 45 + 55) on every screen width, and the main panel overlaps its bottom by 3.5rem, so the first card peeks in and invites a scroll.
+- **Home is a landing page.** First screen: the hero. Below it: 近期活动 in one centred column (max 48rem) with no sidebar. Every other page keeps the sidebar layout.
 - **Cards.** Content sits in cards with generous padding (about 2.25rem across on posts and About). One idea per card; separate cards with 1rem.
 - **Navigation.** Blog, Notes, Projects, Archive, About, GitHub. The brand on the left goes home. Prev and next on a post stay within its section.
 - **Sidebar.** Profile, then categories, tags, and the token usage card. Sidebar cards stay compact: a title, a little content, no scrolling inside.
@@ -137,7 +138,7 @@ The design is flat. Depth comes from surface lightness, not shadows: page backgr
 - **Home sections.** The home page is an overview, not a feed: one card per section with its name, description, a "全部 N" link to the full list, and the latest three posts as compact rows (title, date, one-line description). An empty section says 还在整理中，敬请期待。
 - **Post card.** Title, meta row, description, word count and reading time. In the Notes list it also carries the status badge on the right. No cover images for now.
 - **Status badge.** Three states only: 已完成 (done), 待补充 (partial), 施工中 (wip). It appears only on notes: in the Notes list and on a note's own page, never on the home page or in Blog. It is a label, not a button, so it has no hover state.
-- **Banner hero.** `MFxian` and the bio over the home banner, white with a soft shadow, aligned with the sidebar's left edge. It fades out away from home.
+- **Home hero.** Centred on the full-screen banner under the navbar: the avatar (links to About), the name, and a terminal window that types a short intro. The terminal is dark glass (night at 62% with a 10px blur), a thin white/10 border, three muted dots, JetBrains Mono; the prompt uses the theme hue, commands white/92, output white/68. Its lines live in `src/constants/hero.ts`. A small 近期活动 chevron at the bottom scrolls to the content. The hero fades out away from home.
 - **Splash.** Shown at most once a day per browser on the home page: a procedural night sky, the avatar in the centre, and one short hint (点击头像). Esc or Enter also enter. It must never be the only way in.
 - **Token usage card.** A 16-week heatmap in the sidebar, cells at most 14px, shaded by quartiles of active days in `--primary` at 30/55/80/100%.
 - **Comments.** giscus inside a card at the bottom of a post. Its theme follows light or dark mode.
@@ -149,14 +150,14 @@ Motion explains what changed; it is never decoration for its own sake.
 - **Easing.** Use ease-out for things entering, ease-in-out for things moving, and Tailwind's default curve for state changes. Never use linear for movement. Stepped timing is only for a deliberate effect (see the note below).
 - **Durations.** State changes such as hover, press and colour take 150–300ms. Content entering (`onload-animation`, fade in and up 2rem) takes 300ms with a 50–75ms stagger between items. Page transitions (Swup fade) take 200ms. Layout changes such as the banner height take 700ms. The splash entrance, about 2.3s, is the only long sequence, and it plays at most once a day.
 - **Distance.** Entrances travel 12px to 2rem, not more. Things grow from 95–105%, never from zero.
-- **Reduced motion.** Respect `prefers-reduced-motion`: replace movement with a plain fade or show the final state. The splash and the banner hero already do this.
+- **Reduced motion.** Respect `prefers-reduced-motion`: replace movement with a plain fade or show the final state. The splash and the home hero already do this.
 - **Never block.** Animations must not delay reading or clicking. If the content is ready, it shows.
 
-Note: the home bio currently uses a stepped typewriter with a blinking caret. It is the one exception to the smooth rule, and it is under review.
+- **Typing.** The terminal types one character every 45–100ms, deliberately uneven so it reads as a person typing; each output fades up 4px over 350ms once its command is typed, and the caret pulses with ease-in-out rather than blinking hard. It waits for the splash to leave, plays once per tab, and the text is in the HTML, so screen readers and no-JS visitors get it at once.
 
 ## Responsive Behavior
 
-- **Breakpoints.** `md` (768px) shows the full nav links and the 16px root size. `lg` (1024px) puts the sidebar beside the content and enables the taller home banner. `2xl` shows the table of contents beside posts.
+- **Breakpoints.** `md` (768px) shows the full nav links and the 16px root size. `lg` (1024px) puts the sidebar beside the content. `2xl` shows the table of contents beside posts.
 - **Phones first.** Check every change at 375px wide: no sideways scrolling, and touch targets of at least 2.75rem for primary buttons.
 - **Heavy effects scale down.** The splash draws fewer stars on small screens. Any new canvas or WebGL effect needs a cheaper version, or no effect, on small or weak devices.
 

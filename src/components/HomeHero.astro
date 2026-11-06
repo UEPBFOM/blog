@@ -158,19 +158,10 @@ import "@fontsource-variable/jetbrains-mono";
 
 <script>
 // Types each command character by character, then fades in its output.
-// Plays once per tab; later visits and reduced motion show the finished terminal.
+// Plays on every fresh visit, right after the splash; reduced motion shows the finished terminal.
 const hero = document.getElementById("home-hero");
-const KEY = "hero-typed";
 
-function seen() {
-    try {
-        return sessionStorage.getItem(KEY) === "1";
-    } catch {
-        return false;
-    }
-}
-
-if (hero && !seen() && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+if (hero && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const steps = Array.from(hero.querySelectorAll<HTMLElement>(".term-step"));
     hero.classList.add("typing");
     for (const step of steps) {
@@ -197,9 +188,6 @@ if (hero && !seen() && !matchMedia("(prefers-reduced-motion: reduce)").matches) 
             step.classList.add("done");
         }
         hero?.classList.remove("typing");
-        try {
-            sessionStorage.setItem(KEY, "1");
-        } catch {}
     }
 
     // Start once the splash (if any) has gone, so the typing is not wasted behind it.

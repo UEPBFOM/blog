@@ -139,7 +139,7 @@ The design is flat. Depth comes from surface lightness, not shadows: page backgr
 - **Post card.** Title, meta row, description, word count and reading time. In the Notes list it also carries the status badge on the right. No cover images for now.
 - **Status badge.** Three states only: 已完成 (done), 待补充 (partial), 施工中 (wip). It appears only on notes: in the Notes list and on a note's own page, never on the home page or in Blog. It is a label, not a button, so it has no hover state.
 - **Home hero.** Centred on the full-screen banner under the navbar: the avatar (links to About), the name, and a terminal window that types a short intro. The terminal is dark glass (night at 62% with a 10px blur), a thin white/10 border, three muted dots, JetBrains Mono; the prompt uses the theme hue, commands white/92, output white/68. Its lines live in `src/constants/hero.ts`. A small 近期活动 chevron at the bottom scrolls to the content. The hero fades out away from home.
-- **Splash.** Shown at most once a day per browser on the home page: a procedural night sky, the avatar in the centre, and one short hint (点击头像). Esc or Enter also enter. It must never be the only way in.
+- **Splash.** Shown on every fresh visit to the home page (a new tab, a reload, arriving from search); moving around inside the site never brings it back: a procedural night sky, the avatar in the centre, and one short hint (点击头像). Esc or Enter also enter. It must never be the only way in.
 - **Token usage card.** A 16-week heatmap in the sidebar, cells at most 14px, shaded by quartiles of active days in `--primary` at 30/55/80/100%.
 - **Comments.** giscus inside a card at the bottom of a post. Its theme follows light or dark mode.
 
@@ -148,12 +148,12 @@ The design is flat. Depth comes from surface lightness, not shadows: page backgr
 Motion explains what changed; it is never decoration for its own sake.
 
 - **Easing.** Use ease-out for things entering, ease-in-out for things moving, and Tailwind's default curve for state changes. Never use linear for movement. Stepped timing is only for a deliberate effect (see the note below).
-- **Durations.** State changes such as hover, press and colour take 150–300ms. Content entering (`onload-animation`, fade in and up 2rem) takes 300ms with a 50–75ms stagger between items. Page transitions (Swup fade) take 200ms. Layout changes such as the banner height take 700ms. The splash entrance, about 2.3s, is the only long sequence, and it plays at most once a day.
+- **Durations.** State changes such as hover, press and colour take 150–300ms. Content entering (`onload-animation`, fade in and up 2rem) takes 300ms with a 50–75ms stagger between items. Page transitions (Swup fade) take 200ms. Layout changes such as the banner height take 700ms. The splash entrance, about 2.3s, is the only long sequence, and it plays only when the home page is freshly opened.
 - **Distance.** Entrances travel 12px to 2rem, not more. Things grow from 95–105%, never from zero.
 - **Reduced motion.** Respect `prefers-reduced-motion`: replace movement with a plain fade or show the final state. The splash and the home hero already do this.
 - **Never block.** Animations must not delay reading or clicking. If the content is ready, it shows.
 
-- **Typing.** The terminal types one character every 45–100ms, deliberately uneven so it reads as a person typing; each output fades up 4px over 350ms once its command is typed, and the caret pulses with ease-in-out rather than blinking hard. It waits for the splash to leave, plays once per tab, and the text is in the HTML, so screen readers and no-JS visitors get it at once.
+- **Typing.** The terminal types one character every 45–100ms, deliberately uneven so it reads as a person typing; each output fades up 4px over 350ms once its command is typed, and the caret pulses with ease-in-out rather than blinking hard. It waits for the splash to leave, plays on every fresh visit along with it, and the text is in the HTML, so screen readers and no-JS visitors get it at once.
 
 ## Responsive Behavior
 

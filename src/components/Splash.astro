@@ -2,13 +2,6 @@
 import { profileConfig } from "../config";
 import ImageWrapper from "./misc/ImageWrapper.astro";
 ---
-<!-- Skip the splash before it paints if this browser entered the blog in the last day -->
-<script is:inline>
-    try {
-        if (Date.now() - Number(localStorage.getItem("splash-seen")) < 86400000) document.documentElement.classList.add("splash-seen");
-    } catch {}
-</script>
-
 <div id="splash" role="dialog" aria-label="进入博客">
     <canvas id="splash-sky"></canvas>
     <div id="splash-ring"></div>
@@ -19,7 +12,6 @@ import ImageWrapper from "./misc/ImageWrapper.astro";
 </div>
 
 <style is:global>
-    .splash-seen #splash { display: none; }
     #splash {
         position: fixed;
         inset: 0;
@@ -87,10 +79,9 @@ const VIGNETTE = 0.6;
 const NEBULA_X = 0.5 + Math.cos(-0.6) * 0.3;
 const NEBULA_Y = 0.5 + Math.sin(-0.6) * 0.3;
 
+// Every fresh visit to the home page plays the splash; moving around inside the site does not reload it.
 const splash = document.getElementById("splash");
-const seen = document.documentElement.classList.contains("splash-seen");
-if (splash && seen) splash.remove();
-else if (splash) startSplash(splash);
+if (splash) startSplash(splash);
 
 function startSplash(splash: HTMLElement) {
     const cv = document.getElementById("splash-sky") as HTMLCanvasElement;
@@ -466,9 +457,6 @@ function startSplash(splash: HTMLElement) {
     function enter() {
         if (entering) return;
         entering = true;
-        try {
-            localStorage.setItem("splash-seen", String(Date.now()));
-        } catch {}
         tip.style.opacity = "0";
 
         if (reduced) {
